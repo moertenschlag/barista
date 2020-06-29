@@ -19,8 +19,11 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'dt-example-datepicker-default',
   templateUrl: 'datepicker-default-example.html',
-  styleUrls: ['datepicker-default-example.scss'],
+  styleUrls: ['datepicker-default-example.css'],
 })
 export class DtExampleDatepickerDefault {
+  startAt = new Date(2020, 7, 31);
+  isDatepickerDisabled = false;
   isTimepickerDisabled = false;
+  isDatepickerTimeEnabled = true;
 }

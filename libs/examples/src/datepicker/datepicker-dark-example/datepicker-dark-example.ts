@@ -22,5 +22,8 @@ import { Component } from '@angular/core';
   styleUrls: ['datepicker-dark-example.scss'],
 })
 export class DtExampleDatepickerDark {
+  startAt = new Date(2020, 7, 31);
+  isDatepickerDisabled = false;
   isTimepickerDisabled = false;
+  isDatepickerTimeEnabled = true;
 }
