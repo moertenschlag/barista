@@ -43,24 +43,99 @@ import {
   FILTER_FIELD_TEST_DATA_SINGLE_DISTINCT,
   FILTER_FIELD_TEST_DATA_SINGLE_OPTION,
 } from '@dynatrace/testing/fixtures';
-import { TEST_DATA_EDITMODE_ASYNC } from './filter-field-edit-mode.spec';
 import {
-  TEST_DATA_SUGGESTIONS,
-  TEST_DATA_EDITMODE,
-} from './testing/filter-field-test-data';
-import {
-  TestApp,
-  TestAppCustomParserConfig,
-  TestAppCustomParserInput,
-  getOptions,
-  setupFilterFieldTest,
-  getOptionGroups,
   getClearAll,
   getFilterTags,
   getInput,
+  getOptionGroups,
+  getOptions,
   getTagButtons,
   isClearAllVisible,
+  setupFilterFieldTest,
+  TestApp,
+  TestAppCustomParserConfig,
+  TestAppCustomParserInput,
 } from './testing/filter-field-test-helpers';
+
+const TEST_DATA_SUGGESTIONS = {
+  autocomplete: [
+    {
+      name: 'Node',
+      options: [
+        {
+          name: 'Custom Simple Option',
+        },
+        {
+          name: 'Node Label',
+          key: 'MyKey',
+          suggestions: [{ name: 'some cool' }, { name: 'very weird' }],
+          validators: [],
+        },
+      ],
+    },
+  ],
+};
+
+const TEST_DATA_EDITMODE = {
+  autocomplete: [
+    {
+      name: 'AUT',
+      autocomplete: [
+        {
+          name: 'Upper Austria',
+          distinct: true,
+          autocomplete: [
+            {
+              name: 'Cities',
+              options: [{ name: 'Linz' }, { name: 'Wels' }, { name: 'Steyr' }],
+            },
+          ],
+        },
+        {
+          name: 'Vienna',
+        },
+      ],
+    },
+    {
+      name: 'USA',
+      autocomplete: [{ name: 'Los Angeles' }, { name: 'San Fran' }],
+    },
+    {
+      name: 'Free',
+      suggestions: [],
+      validators: [],
+    },
+    {
+      name: 'Requests per minute',
+      range: {
+        operators: {
+          range: true,
+          equal: true,
+          greaterThanEqual: true,
+          lessThanEqual: true,
+        },
+        unit: 's',
+      },
+    },
+    {
+      name: 'DE (async)',
+      async: true,
+      autocomplete: [],
+    },
+  ],
+};
+
+export const TEST_DATA_EDITMODE_ASYNC = {
+  name: 'DE (async)',
+  autocomplete: [
+    { name: 'Berlin' },
+    {
+      name: 'München',
+      suggestions: [],
+      validators: [],
+    },
+  ],
+};
 
 describe('DtFilterField', () => {
   let fixture: ComponentFixture<TestApp>;

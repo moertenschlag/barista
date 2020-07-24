@@ -289,6 +289,46 @@ export function getRangeApplyButton(
   );
 }
 
+export function getMultiSelect(
+  overlayContainerElement: HTMLElement,
+): HTMLElement[] {
+  return Array.from(
+    overlayContainerElement.querySelectorAll(
+      '.dt-filter-field-multi-select-panel',
+    ),
+  );
+}
+
+export function getMultiselectCheckboxLabels(
+  overlayContainerElement: HTMLElement,
+): HTMLInputElement[] {
+  return Array.from(
+    overlayContainerElement.querySelectorAll(
+      '.dt-filter-field-multi-select-checkbox label',
+    ),
+  );
+}
+
+export function getMultiselectCheckboxInputs(
+  overlayContainerElement: HTMLElement,
+): HTMLInputElement[] {
+  return Array.from(
+    overlayContainerElement.querySelectorAll(
+      '.dt-filter-field-multi-select-checkbox input',
+    ),
+  );
+}
+
+export function getMultiselectApplyButton(
+  overlayContainerElement: HTMLElement,
+): HTMLElement[] {
+  return Array.from(
+    overlayContainerElement.querySelectorAll(
+      '.dt-filter-field-multi-select-apply',
+    ),
+  );
+}
+
 interface FilterTagTestData {
   ele: DebugElement;
   key: string;
