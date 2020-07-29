@@ -143,6 +143,7 @@ import {
   DtExampleFilterFieldUnique,
   DtExampleFilterFieldValidator,
   DtExampleFormFieldDefault,
+  DtExampleFormFieldDefaultDark,
   DtExampleFormFieldErrorCustomValidator,
   DtExampleFormFieldError,
   DtExampleFormFieldHint,
@@ -695,6 +696,7 @@ const ROUTES: Routes = [
     component: DtExampleFilterFieldValidator,
   },
   { path: 'form-field-default-example', component: DtExampleFormFieldDefault },
+  { path: 'form-field-default-dark-example', component: DtExampleFormFieldDefaultDark },
   {
     path: 'form-field-error-custom-validator-example',
     component: DtExampleFormFieldErrorCustomValidator,

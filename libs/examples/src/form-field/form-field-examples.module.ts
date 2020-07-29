@@ -24,6 +24,7 @@ import { DtLoadingDistractorModule } from '@dynatrace/barista-components/loading
 import { DtButtonModule } from '@dynatrace/barista-components/button';
 
 import { DtExampleFormFieldDefault } from './form-field-default-example/form-field-default-example';
+import { DtExampleFormFieldDefaultDark } from './form-field-default-dark-example/form-field-default-dark-example';
 import { DtExampleFormFieldErrorCustomValidator } from './form-field-error-custom-validator-example/form-field-error-custom-validator-example';
 import { DtExampleFormFieldError } from './form-field-error-example/form-field-error-example';
 import { DtExampleFormFieldHint } from './form-field-hint-example/form-field-hint-example';
@@ -50,6 +51,7 @@ import { DtCheckboxModule } from '@dynatrace/barista-components/checkbox';
   ],
   declarations: [
     DtExampleFormFieldDefault,
+    DtExampleFormFieldDefaultDark,
     DtExampleFormFieldErrorCustomValidator,
     DtExampleFormFieldError,
     DtExampleFormFieldHint,

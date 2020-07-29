@@ -150,6 +150,7 @@ import { DtExampleFilterFieldReadOnlyTags } from './filter-field/filter-field-re
 import { DtExampleFilterFieldUnique } from './filter-field/filter-field-unique-example/filter-field-unique-example';
 import { DtExampleFilterFieldValidator } from './filter-field/filter-field-validator-example/filter-field-validator-example';
 import { DtExampleFormFieldDefault } from './form-field/form-field-default-example/form-field-default-example';
+import { DtExampleFormFieldDefaultDark } from './form-field/form-field-default-dark-example/form-field-default-dark-example';
 import { DtExampleFormFieldErrorCustomValidator } from './form-field/form-field-error-custom-validator-example/form-field-error-custom-validator-example';
 import { DtExampleFormFieldError } from './form-field/form-field-error-example/form-field-error-example';
 import { DtExampleFormFieldHint } from './form-field/form-field-hint-example/form-field-hint-example';
@@ -519,6 +520,7 @@ export {
   DtExampleFilterFieldUnique,
   DtExampleFilterFieldValidator,
   DtExampleFormFieldDefault,
+  DtExampleFormFieldDefaultDark,
   DtExampleFormFieldErrorCustomValidator,
   DtExampleFormFieldError,
   DtExampleFormFieldHint,
@@ -862,6 +864,7 @@ export const EXAMPLES_MAP = new Map<string, Type<unknown>>([
   ['DtExampleFilterFieldUnique', DtExampleFilterFieldUnique],
   ['DtExampleFilterFieldValidator', DtExampleFilterFieldValidator],
   ['DtExampleFormFieldDefault', DtExampleFormFieldDefault],
+  ['DtExampleFormFieldDefaultDark', DtExampleFormFieldDefaultDark],
   [
     'DtExampleFormFieldErrorCustomValidator',
     DtExampleFormFieldErrorCustomValidator,

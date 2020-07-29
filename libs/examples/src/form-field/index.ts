@@ -15,6 +15,7 @@
  */
 
 export * from './form-field-default-example/form-field-default-example';
+export * from './form-field-default-dark-example/form-field-default-dark-example';
 export * from './form-field-error-custom-validator-example/form-field-error-custom-validator-example';
 export * from './form-field-error-example/form-field-error-example';
 export * from './form-field-examples.module';

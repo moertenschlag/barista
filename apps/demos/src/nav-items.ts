@@ -629,6 +629,10 @@ export const DT_DEMOS_EXAMPLE_NAV_ITEMS = [
         route: '/form-field-default-example',
       },
       {
+        name: 'form-field-default-dark-example',
+        route: '/form-field-default-dark-example',
+      },
+      {
         name: 'form-field-error-custom-validator-example',
         route: '/form-field-error-custom-validator-example',
       },
