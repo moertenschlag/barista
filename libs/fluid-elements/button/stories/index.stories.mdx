@@ -1,0 +1,27 @@
+import {
+  Story,
+  Meta,
+  html,
+  boolean,
+  withKnobs,
+  withWebComponentsKnobs,
+} from '@open-wc/demoing-storybook';
+import '../../../../dist/libs/fluid-elements/button';
+
+<Meta
+  title="Buttons/Button"
+  parameters={{
+    component: 'fluid-button',
+    decorators: [withKnobs, withWebComponentsKnobs],
+  }}
+/>
+
+# Button 123
+
+`fluid-button` provides a button component.
+
+<Story name="Default">{html`<fluid-button>Default</fluid-button>`}</Story>
+
+```html
+<fluid-button>Default</fluid-button>
+```
