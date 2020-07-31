@@ -1,0 +1,22 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
+package(default_visibility = ["//visibility:public"])
+"TODO: This is a temporary solution, until we are able to bazelify the design token generation"
+filegroup(
+    name = "design-tokens",
+    srcs = glob(["**/*.ts"])
+)
+
+ts_library(
+    name = "compile",
+    srcs = glob(
+        include = ["**/*.ts"],
+        exclude = [
+            "**/*.spec.ts",
+        ],
+    ),
+    module_name = "@dynatrace/fluid-design-tokens",
+    tsconfig = "//:tsconfig.json",
+    deps = [
+        "@npm//tslib"
+    ],
+)

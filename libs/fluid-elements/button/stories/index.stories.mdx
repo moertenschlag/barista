@@ -6,7 +6,8 @@ import {
   withKnobs,
   withWebComponentsKnobs,
 } from '@open-wc/demoing-storybook';
-import '../../../../dist/libs/fluid-elements/button';
+// TODO: Import is currently hacked to work with bazel, @lukas.holzer, please help 
+import '../bundle.js';
 
 <Meta
   title="Buttons/Button"

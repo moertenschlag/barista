@@ -1,4 +1,6 @@
 load("//tools/bazel_rules:index.bzl", "stylelint")
+load("@npm//@bazel/typescript:index.bzl", "ts_config", "ts_library")
+load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -7,4 +9,48 @@ stylelint(
     srcs = glob(["**/*.scss"]),
     config = ":.stylelintrc",
     allow_empty_input = True,
+)
+
+filegroup(
+    name = "stories",
+    srcs = glob(["stories/*.mdx"]),
+)
+
+rollup_bundle(
+    name = "bundle",
+    entry_point = "src/index.ts",
+    deps = [
+        ":compile",
+        "@npm//rollup-plugin-local-resolve",
+        "@npm//@rollup/plugin-node-resolve",
+    ],
+    config_file = "//libs/fluid-elements:rollup.config.js",
+    format = "esm",
+)
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.lib.json",
+    deps = [
+        "tsconfig.lib.json",
+        "tsconfig.json",
+        "//libs/fluid-elements:tsconfig",
+    ]
+)
+
+ts_library(
+    name = "compile",
+    srcs = glob(
+        include = ["**/*.ts"],
+        exclude = [
+            "**/*.spec.ts",
+        ],
+    ),
+    tsconfig = ":tsconfig",
+    deps = [
+        "@npm//lit-element",
+        "@npm//lit-html",
+        "@npm//tslib",
+        "//libs/shared/design-tokens/generated:compile",
+    ],
 )

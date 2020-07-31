@@ -1,0 +1,31 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_config")
+load("@npm//@open-wc/demoing-storybook:index.bzl", "start_storybook")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = [
+        "tsconfig.json",
+        "//:tsconfig.json",
+    ]
+)
+
+exports_files(["rollup.config.js"])
+
+storybook_data = glob([".storybook/**"]) + [
+    "//libs/fluid-elements/button:bundle",
+    "//libs/fluid-elements/button:stories"
+]
+
+start_storybook(
+    name = "storybook",
+    templated_args = [
+        "--config-dir libs/fluid-elements/.storybook",
+        "--node-resolve",
+        "--watch",
+        "--open",
+    ],
+    data = storybook_data,
+)

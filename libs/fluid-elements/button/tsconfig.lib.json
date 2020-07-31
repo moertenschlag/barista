@@ -8,7 +8,7 @@
     "inlineSources": true,
     "moduleResolution": "node",
     "types": ["node"],
-    "lib": ["dom", "es2018"]
+    "lib": ["dom", "es2018"],
   },
   "include": ["**/*.ts"],
   "exclude": ["**/*.spec.ts"]
