@@ -1,5 +1,7 @@
 @import './variables';
 
+$screen-md: 768px;
+
 body {
   min-height: 100vh;
   margin: $fluid-spacing--0;
@@ -11,12 +13,28 @@ body {
 
 .ds-main-layout-with-sidebar .ds-page-grid {
   display: grid;
-  grid-template-columns: 270px minmax(0, 1fr) 280px;
-  grid-template-rows: repeat(2, max-content) 1fr;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    'sidenav title .'
-    'sidenav main meta'
-    'sidenav footer .';
+    'title'
+    'meta'
+    'main'
+    'footer';
+  padding: 1rem;
+  grid-row-gap: 1.5rem;
+}
+
+@media (min-width: $screen-md) {
+  .ds-main-layout-with-sidebar .ds-page-grid {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr) 280px;
+    grid-template-rows: repeat(2, max-content) 1fr;
+    grid-template-areas:
+      'sidenav title .'
+      'sidenav main meta'
+      'sidenav footer .';
+    padding: 0;
+    grid-row-gap: 0;
+  }
 }
 
 .ds-page-content {

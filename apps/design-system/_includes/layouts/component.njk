@@ -7,10 +7,10 @@ layout: layouts/base.njk
 {% block sidebar %}
   {% for section in componentSidebar %}
   <div class="ds-sidenav-section">
-    <header class="ds-sidenav-section-title">{{section.title | title}}</header>
+    <header class="ds-sidenav-section-title ds-sidenav-menu-item">{{section.title | title}}</header>
     <ul>
     {% for item in section.items %}
-      <li>
+      <li class="ds-sidenav-menu-item">
         <a
           class="ds-sidenav-item {{"ds-sidenav-item-active" if item.link in page.url}}"
           href="{{item.link}}"

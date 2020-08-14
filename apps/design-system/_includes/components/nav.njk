@@ -1,5 +1,16 @@
 <nav class="ds-nav">
   <div class="ds-nav-wrapper">
+      <div class="ds-nav-mobile-menu">
+        <button class="ds-nav-btn-menutoggle ds-btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="12" viewBox="0 0 18 12" fill="none" role="presentation" 
+            focusable="false" 
+            aria-label="trigram for heaven symbol">
+            <path class="ds-mobile-menu-bar ds-mobile-menu-bar-top" d="M0 12H18V10H0V12Z"/>
+            <path class="ds-mobile-menu-bar ds-mobile-menu-bar-middle" d="M0 7H18V5H0V7Z"/>
+            <path class="ds-mobile-menu-bar ds-mobile-menu-bar-bottom" d="M0 0V2H18V0H0Z"/>
+          </svg>
+        </button>
+      </div>
     <a class="ds-nav-brand" href="/">
       Dynatrace Design System
     </a>
@@ -15,12 +26,14 @@
         </li>
         {% endfor %}
       </ul>
+      <div class="ds-nav-scroll-indicator">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="8" viewBox="0 0 16 8" fill="none">
+          <path d="M12.01 3H0V5H12.01V8L16 4L12.01 0V3Z"/>
+        </svg>
+      </div>
     </nav>
   </div>
   <div class="ds-barista-theme">
-    <a class="ds-back-to-barista" href="https://barista.dynatrace.com/">
-      back to barista
-    </a>
     <button
       class="ds-theme-switch ds-btn-icon"
     >

@@ -25,3 +25,37 @@ if (themeSwitch) {
     }
   });
 }
+
+const mobileSideNavToggle = document.querySelector('.ds-nav-btn-menutoggle');
+const sideNav = document.querySelector('.ds-sidenav');
+
+if (sideNav && mobileSideNavToggle) {
+  mobileSideNavToggle.addEventListener('click', () => {
+    sideNav.classList.toggle('ds-sidebar-active');
+    mobileSideNavToggle.classList.toggle('ds-sidenav-btn-active');
+  });
+}
+
+const menuItems = document.querySelectorAll('.ds-sidenav-menu-item');
+
+for (let i = 0; i < menuItems?.length; i++) {
+  let delay = (i + 1) * 0.09;
+  menuItems[i].setAttribute('style', `transition-delay: ${delay}s`);
+}
+
+const topNav = document.querySelector('.ds-nav-bar');
+const topNavScrollIndicator = document.querySelector(
+  '.ds-nav-scroll-indicator',
+);
+
+if (topNav && topNav.scrollWidth > topNav.clientWidth) {
+  topNavScrollIndicator?.classList.add('ds-nav-scroll-indicator-active');
+
+  topNav?.addEventListener('scroll', () => {
+    if (topNav.scrollLeft === 0) {
+      topNavScrollIndicator?.classList.add('ds-nav-scroll-indicator-active');
+    } else {
+      topNavScrollIndicator?.classList.remove('ds-nav-scroll-indicator-active');
+    }
+  });
+}
