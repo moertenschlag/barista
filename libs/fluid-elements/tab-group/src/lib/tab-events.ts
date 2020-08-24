@@ -14,31 +14,20 @@
  * limitations under the License.
  */
 
-/** Custom event implementation fires when the active tab has changes */
-export class FluidTabGroupActiveTabChanged extends CustomEvent<any> {
-  constructor(public activeTabId: string) {
-    super('activeTabChanged', { bubbles: true, composed: true });
-  }
-}
-
-/** Custom event implementation that fires when a tab is clicked providing the active tab id  */
-export class FluidTabActivatedEvent extends CustomEvent<any> {
-  constructor(public tabId: string) {
-    super('tabActivated', { bubbles: true, composed: true });
-  }
-}
-
-/** Custom event implementation that fires when the active attribute was set */
-export class FluidTabActiveSetEvent extends CustomEvent<any> {
-  constructor(public tabId: string) {
-    super('activeSet', { bubbles: true, composed: true });
+/**
+ * Custom event implementation that fires when a tab is clicked providing the selected tab id
+ * The reason for two events are too much recursion when calling the event in the setter of the selected attribute in the tab component.
+ */
+export class FluidTabSelectedEvent extends CustomEvent<any> {
+  constructor(public selectedTabId: string) {
+    super('select', { bubbles: true, composed: true });
   }
 }
 
 /** Custom event implementation that fires when a tab is disabled providing the disabled tab id  */
 export class FluidTabDisabledEvent extends CustomEvent<any> {
   constructor(public tabId: string) {
-    super('disabled', { bubbles: true, composed: true });
+    super('disable', { bubbles: true, composed: true });
   }
 }
 

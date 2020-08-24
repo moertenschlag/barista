@@ -25,12 +25,7 @@ import {
   customElement,
 } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
-import {
-  FluidTabDisabledEvent,
-  FluidTabActivatedEvent,
-  FluidTabBlurredEvent,
-  FluidTabActiveSetEvent,
-} from '../tab-events';
+import { FluidTabDisabledEvent, FluidTabBlurredEvent } from '../tab-events';
 
 import {
   FLUID_SPACING_3X_SMALL,
@@ -62,11 +57,10 @@ export class FluidTab extends LitElement {
         text-rendering: optimizeLegibility;
         margin-right: ${unsafeCSS(FLUID_SPACING_MEDIUM)};
 
-        --fluid-tab--label-color: var(--color-neutral-100);
-        --fluid-tab--label-hover-color: var(--color-neutral-150);
-        --fluid-tab--label-active-color: var(--color-neutral-150);
+        --fluid-tab--label-color: var(--color-neutral-150);
+        --fluid-tab--label-selected-color: var(--color-neutral-150);
         --fluid-tab--label-disabled-color: var(--color-neutral-80);
-        --fluid-tab--active-underline-color: var(--color-primary-100);
+        --fluid-tab--selected-underline-color: var(--color-primary-100);
         --fluid-tab--hover-underline-color: var(--color-neutral-100);
       }
 
@@ -76,9 +70,11 @@ export class FluidTab extends LitElement {
       :host([disabled]) {
         pointer-events: none;
       }
+
       :host([disabled]) .fluid-tab {
         color: var(--fluid-tab--label-disabled-color);
       }
+
       :host([disabled]) .fluid-tab:hover::after {
         background-color: none;
       }
@@ -106,21 +102,21 @@ export class FluidTab extends LitElement {
         left: 0;
         content: '';
       }
-      .fluid-tab:hover {
-        color: var(--fluid-tab--label-hover-color);
-      }
+
       .fluid-tab:hover::after {
         background-color: var(--fluid-tab--hover-underline-color);
       }
 
-      .fluid-state--active {
-        color: var(--fluid-tab--label-active-color);
+      .fluid-state--selected {
+        color: var(--fluid-tab--label-selected-color);
       }
-      .fluid-state--active:hover::after {
-        background-color: var(--fluid-tab--active-underline-color);
+
+      .fluid-state--selected:hover::after {
+        background-color: var(--fluid-tab--selected-underline-color);
       }
-      .fluid-state--active::after {
-        background-color: var(--fluid-tab--active-underline-color);
+
+      .fluid-state--selected::after {
+        background-color: var(--fluid-tab--selected-underline-color);
       }
 
       .fluid-tab:not(.fluid-state--tabbed) {
@@ -135,7 +131,7 @@ export class FluidTab extends LitElement {
    * @type string
    */
   @property({ type: String, reflect: true })
-  tabid = `fluid-tab-${_unique++}`;
+  tabId = `fluid-tab-${_unique++}`;
 
   /**
    * Defines whether a tab is disabled or not
@@ -150,12 +146,12 @@ export class FluidTab extends LitElement {
     const oldValue = this._disabled;
     if (this._disabled !== value) {
       this._disabled = value;
-      this.requestUpdate('disabled', oldValue);
       if (this._disabled) {
-        this.active = false;
-        this.tabindex = -1;
-        this.dispatchEvent(new FluidTabDisabledEvent(this.tabid));
+        this.selected = false;
+        this.tabIndex = -1;
+        this.dispatchEvent(new FluidTabDisabledEvent(this.tabId));
       }
+      this.requestUpdate('disabled', oldValue);
     }
   }
   private _disabled = false;
@@ -166,28 +162,73 @@ export class FluidTab extends LitElement {
    * @type number
    */
   @property({ type: Number, reflect: false })
-  tabindex = 0;
+  set tabIndex(value: number) {
+    const oldValue = this._tabIndex;
+    this._tabIndex = value;
+    this.requestUpdate('tabIndex', oldValue);
+  }
+  get tabIndex(): number {
+    return this._tabIndex;
+  }
+  private _tabIndex = 0;
 
   /**
-   * Defines whether a tab is active or not
+   * Defines whether a tab is selected or not
    * @attr
    * @type boolean
    */
   @property({ type: Boolean, reflect: false })
-  get active(): boolean {
-    return this._active;
+  get selected(): boolean {
+    return this._selected;
   }
-  set active(value: boolean) {
-    const oldActive = this._active;
-    // Only set active true if not disabled
-    this._active = this.disabled === false ? value : false;
-    this.requestUpdate('active', oldActive);
-    this.tabindex = this.active ? 0 : -1;
+  set selected(value: boolean) {
+    const oldValue = this._selected;
+    // Only select if not disabled
+    this._selected = this.disabled ? false : value;
+    this.requestUpdate('selected', oldValue);
+    this.tabIndex = this._selected ? 0 : -1;
     if (value) {
-      this._dispatchActiveSetEvent();
+      this._dispatchSelectTabEvent();
     }
   }
-  private _active = false;
+  private _selected = false;
+
+  /**
+   * Role of the tab.
+   * @private - An internal prop that should not appear in the readme and should
+   * not be set by the outside.
+   */
+  @property({
+    type: String,
+    reflect: true,
+  })
+  role: string = 'tab';
+
+  /**
+   * Aria-selected attribute of the checkbox.
+   * @private - An internal prop that should not appear in the readme and should
+   * not be set by the outside.
+   */
+  @property({
+    type: String,
+    reflect: true,
+    attribute: 'aria-selected',
+  })
+  ariaSelected: string = 'false';
+
+  /** Update lifecycle */
+  update(props: Map<string | number | symbol, unknown>): void {
+    // Aria-selected depends on the value of selected, but is never actually
+    // set by the litElement reactivity. In the updated lifeCycle
+    // we need to manually update the ariaSelected attribute here.
+    this.ariaSelected = this._selected.toString();
+    // Changing the aria-selected or any observed property in the update, will
+    // add it to the updated properties. When calling super first in, the change
+    // of properties in the update call will trigger an update, as the properties
+    // will have changed after the super.update() call. To prevent an additional
+    // cycle, we make the modifications before calling the super lifecycle
+    super.update(props);
+  }
 
   /** Defines whether the user focused an element by tabbing or not */
   @property({ type: Boolean, reflect: false })
@@ -198,7 +239,7 @@ export class FluidTab extends LitElement {
     const oldTabbed = this.tabbed;
     this._tabbed = value;
     this.requestUpdate('tabbed', oldTabbed);
-    this.tabindex = value === true ? 0 : -1;
+    this.tabIndex = value === true ? 0 : -1;
   }
   private _tabbed = false;
 
@@ -213,27 +254,19 @@ export class FluidTab extends LitElement {
     )! as HTMLSpanElement;
   }
 
-  private _dispatchActiveSetEvent(): void {
-    this.dispatchEvent(new FluidTabActiveSetEvent(this.tabid));
-  }
-
-  /** Dispatches the custom event with the tabid of the clicked tab  */
-  private _dispatchActiveTabEvent(): void {
-    this.dispatchEvent(new FluidTabActivatedEvent(this.tabid));
+  /** Dispatches the custom event (@select) */
+  private _dispatchSelectTabEvent(): void {
+    this.dispatchEvent(new FluidTabSelectedEvent(this.tabId));
   }
 
   /** Handles the click event. Dispatches the tab when a new tab was clicked */
   private handleClick(): void {
-    if (!this._active) {
-      this._dispatchActiveTabEvent();
-    }
+    this.selected = true;
   }
 
-  /** Fires an event if the focused tab was tabbed to but not set to active */
+  /** Fires an event if the focused tab was tabbed to but not set to selected true */
   private handleBlur(): void {
-    if (this.tabbed && !this.active) {
-      this.dispatchEvent(new FluidTabBlurredEvent(this.tabid));
-    }
+    this.dispatchEvent(new FluidTabBlurredEvent(this.tabId));
   }
 
   /**
@@ -243,14 +276,14 @@ export class FluidTab extends LitElement {
   render(): TemplateResult {
     const classes = {
       'fluid-tab': true,
-      'fluid-state--tabbed': this.tabbed,
-      'fluid-state--active': this._active,
+      'fluid-state--tabbed': this._tabbed,
+      'fluid-state--selected': this.selected,
     };
 
     // Linebreak causes the element to have a space
     return html`<span
       class=${classMap(classes)}
-      tabindex=${this.tabindex}
+      tabindex="${this.tabIndex}"
       ?disabled="${this.disabled}"
       @click="${this.handleClick}"
       @blur="${this.handleBlur}"

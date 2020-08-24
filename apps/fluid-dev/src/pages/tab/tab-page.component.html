@@ -1,7 +1,7 @@
 <!-- Tab-List -->
-<fluid-tab-group (activeTabChanged)="handleChange($event)">
+<fluid-tab-group (change)="handleChange($event)">
   <!-- Tabs -->
-  <fluid-tab tabid="section1" active="active">
+  <fluid-tab tabid="section1" [selected]="selected">
     Build
   </fluid-tab>
   <fluid-tab tabid="section2">
@@ -14,7 +14,7 @@
     Saved Queries
   </fluid-tab>
 </fluid-tab-group>
-<button (click)="active = !active">Toggle active</button>
+<button (click)="selected = !selected">Toggle selected</button>
 <button (click)="showLastTab = !showLastTab">Toggle last tab</button>
 <button (click)="disabled = !disabled">Toggle disabled ({{ disabled }})</button>
 <!-- Sections -->

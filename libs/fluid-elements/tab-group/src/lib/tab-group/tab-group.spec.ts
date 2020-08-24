@@ -15,10 +15,7 @@
  */
 
 import { FluidTabGroup } from './tab-group';
-import {
-  dispatchKeyboardEvent,
-  dispatchFakeEvent,
-} from '@dynatrace/testing/browser';
+import { dispatchKeyboardEvent } from '@dynatrace/testing/browser';
 import { ARROW_RIGHT, SPACE } from '@dynatrace/shared/keycodes';
 import { FluidTab } from '../tab/tab';
 
@@ -28,7 +25,7 @@ function tick(): Promise<void> {
 
 describe('Fluid tab group', () => {
   let fixture: FluidTabGroup;
-  let activeTabChangedSpy: jest.Mock;
+  let selectSpy: jest.Mock;
   let keyupSpy: jest.Mock;
   let blurSpy: jest.Mock;
 
@@ -67,9 +64,8 @@ describe('Fluid tab group', () => {
       `;
     fixture = document.querySelector<FluidTabGroup>('fluid-tab-group')!;
 
-    // Add spied eventListeners
-    activeTabChangedSpy = jest.fn();
-    fixture.addEventListener('activeTabChanged', activeTabChangedSpy);
+    selectSpy = jest.fn();
+    fixture.addEventListener('select', selectSpy);
 
     keyupSpy = jest.fn();
     fixture.addEventListener('keyup', keyupSpy);
@@ -86,66 +82,69 @@ describe('Fluid tab group', () => {
     expect(fixture).not.toBe(null);
   });
 
-  describe('activetabid attribute', () => {
-    it('should set the initial active tab', async () => {
-      expect(fixture.getAttribute('activeTabId')).toBe('section1');
+  describe('selectedTabId attribute', () => {
+    it('should not set a tab initially', async () => {
+      expect(fixture.getAttribute('selectedtabid')).toBeNull(); // Passes on its own
     });
 
-    it('should set active tab when property is set', async () => {
-      fixture.activeTabId = 'section2';
+    it('should set selected tab when property is set', async () => {
+      fixture.selectedTabId = 'section2';
       await tick();
       expect(fixture.getAttribute('activeTabId')).toBe('section2');
     });
 
-    it('should set last activetabid attribute when a tab is clicked', async () => {
-      const tab = getLastSpanElementFromFluidTab();
+    it('should set last selectedTabId attribute when a tab is clicked', async () => {
+      const tab = fixture
+        .querySelector('fluid-tab:last-child')
+        ?.shadowRoot?.querySelector('span');
       tab?.click();
       await tick();
       expect(fixture.getAttribute('activeTabId')).toBe('section2');
     });
 
-    it('should set last activetabid attribute when using key events', async () => {
-      const tab = fixture.querySelector<FluidTab>('fluid-tab');
-      tab?.focus();
+    // tslint:disable-next-line: dt-no-focused-tests
+    it('should set last selectedTabId attribute when using key events', async () => {
+      const tab = fixture.querySelector<FluidTab>('fluid-tab')!;
+      dispatchKeyboardEvent(tab, 'keyup', SPACE);
       await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe('section1');
+      expect(selectSpy).toHaveBeenCalledTimes(1);
+      expect(fixture.getAttribute('selectedtabid')).toBe('section1');
+    });
+
+    it('should represent the correct selectedTabId if the tab itself is set to active', async () => {
+      await tick();
+      const tab = fixture.querySelector<FluidTab>('fluid-tab:last-child');
+      tab!.selected = true;
+      await tick();
+      expect(selectSpy).toBeCalledTimes(1);
+      expect(tab?.selected).toBeTruthy();
+      expect(fixture.getAttribute('selectedtabid')).toBe('section2');
       dispatchKeyboardEvent(tab!, 'keyup', ARROW_RIGHT);
       await tick();
       expect(keyupSpy).toBeCalledTimes(1);
       dispatchKeyboardEvent(document.activeElement!, 'keyup', SPACE);
-      await tick();
-      expect(activeTabChangedSpy).toHaveBeenCalledTimes(1);
-      expect(fixture.getAttribute('activeTabId')).toBe('section2');
-    });
-
-    it('should represent the correct activetabid if the tab itself is set to active', async () => {
-      await tick();
-      const tab = fixture.querySelector<FluidTab>('fluid-tab:last-child');
-      tab!.active = true;
-
-      await tick();
-      expect(tab?.active).toBeTruthy();
-      expect(fixture.getAttribute('activeTabId')).toBe('section2');
+      expect(selectSpy).toHaveBeenCalledTimes(2);
+      expect(fixture.getAttribute('selectedtabid')).toBe('section2');
     });
   });
 
-  describe('tabindex attribute', () => {
-    it('should set tabindex to 0 when tab is clicked', async () => {
+  describe('tabIndex attribute', () => {
+    it('should set tabIndex to 0 when tab is clicked', async () => {
       const tab = getFirstSpanElementFromFluidTab();
       tab?.click();
       await tick();
       fixture.querySelector<FluidTab>('fluid-tab:last-child')!.click();
       getLastSpanElementFromFluidTab().click();
       await tick();
-      expect(getFirstSpanElementFromFluidTab().getAttribute('tabindex')).toBe(
+      expect(getFirstSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
         '-1',
       );
-      expect(getLastSpanElementFromFluidTab().getAttribute('tabindex')).toBe(
+      expect(getLastSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
         '0',
       );
     });
 
-    it('should set tabindex to 0 when tab is selected using keys', async () => {
+    it('should set tabIndex to 0 when tab is selected using keys', async () => {
       const tab = fixture.querySelector<FluidTab>('fluid-tab');
       tab?.focus();
       await tick();
@@ -153,49 +152,61 @@ describe('Fluid tab group', () => {
       await tick();
       dispatchKeyboardEvent(document.activeElement!, 'keyup', SPACE);
       await tick();
-      expect(getFirstSpanElementFromFluidTab().getAttribute('tabindex')).toBe(
+      expect(getFirstSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
         '-1',
       );
-      expect(getLastSpanElementFromFluidTab().getAttribute('tabindex')).toBe(
+      expect(getLastSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
         '0',
       );
     });
 
-    it('should set tabindex to -1 when tab is disabled', async () => {
+    it('should set tabIndex to -1 when tab is disabled', async () => {
       fixture
         .querySelector<FluidTab>('fluid-tab')
         ?.setAttribute('disabled', 'true');
       await tick();
-      expect(getFirstSpanElementFromFluidTab().getAttribute('tabindex')).toBe(
+      expect(getFirstSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
         '-1',
       );
     });
   });
 
-  describe('activeTabChanged event', () => {
+  describe('disabled attribute', () => {
+    it('should set the tabIndex to 0 of the next available when the serlected tab is disabled', async () => {
+      const tab1 = fixture.querySelector<FluidTab>('fluid-tab')!;
+      const tab2 = fixture.querySelector<FluidTab>('fluid-tab:last-child')!;
+      tab1.selected = true;
+      await tick();
+      expect(tab1.tabIndex).toBe(0);
+      expect(tab2.tabIndex).toBe(-1);
+      tab1.disabled = true;
+      await tick();
+      expect(tab1.tabIndex).toBe(-1);
+      expect(tab2.tabIndex).toBe(0);
+    });
+  });
+
+  describe('selectedTabChanged event', () => {
     it('should fire an event when a tab is clicked', async () => {
       const tab = getLastSpanElementFromFluidTab();
       tab?.click();
       await tick();
-      expect(activeTabChangedSpy).toBeCalledTimes(1);
+      expect(selectSpy).toBeCalledTimes(1);
     });
 
     it('should fire an event when using the key events', async () => {
-      const tab = fixture.querySelector<FluidTab>('fluid-tab');
-      tab?.focus();
-      dispatchKeyboardEvent(tab!, 'keyup', ARROW_RIGHT);
+      const tab = fixture.querySelector<FluidTab>('fluid-tab')!;
+      dispatchKeyboardEvent(tab, 'keyup', SPACE);
       await tick();
-      dispatchKeyboardEvent(document.activeElement!, 'keyup', SPACE);
-
-      expect(activeTabChangedSpy).toBeCalledTimes(1);
+      expect(selectSpy).toBeCalledTimes(1);
     });
   });
 
-  describe('active tab behaviour', () => {
-    it('should override the tab-groups activeTabId attribute if the tab istelf is set to active', async () => {
+  describe('selected tab behaviour', () => {
+    it('should override the tab-groups selectedTabId attribute if the tab istelf is selected', async () => {
       document.body.innerHTML = `
-      <fluid-tab-group activeTabId="section2">
-        <fluid-tab tabid="section1" active>
+      <fluid-tab-group selectedTabId="section2">
+        <fluid-tab tabid="section1" selected>
           Section 1
         </fluid-tab>
         <fluid-tab tabid="section2">
@@ -208,12 +219,13 @@ describe('Fluid tab group', () => {
       await tick();
       expect(
         getFirstSpanElementFromFluidTab().classList.contains(
-          'fluid-state--active',
+          'fluid-state--selected',
         ),
       ).toBeTruthy();
     });
 
-    it('should set a available tab active after removing the currently active tab', async () => {
+    // tslint:disable-next-line: dt-no-focused-tests
+    it('should set tabIndex to 0 of a available tab after removing the currently selected tab', async () => {
       document.body.innerHTML = `
       <fluid-tab-group>
         <fluid-tab tabid="section1">
@@ -227,12 +239,17 @@ describe('Fluid tab group', () => {
         </fluid-tab>
       </fluid-tab-group>
       `;
-      // Ticking twice otherwise the dom isn't updated.
-      await tick();
       await tick();
       fixture = document.querySelector<FluidTabGroup>('fluid-tab-group')!;
+      // Ticking twice otherwise the dom isn't updated since the slotchanged event isn't called yet at that point.
       await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe('section1');
+      await tick();
+      expect(getFirstSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
+        '0',
+      );
+      expect(getLastSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
+        '-1',
+      );
 
       document.body.innerHTML = `
       <fluid-tab-group>
@@ -244,16 +261,21 @@ describe('Fluid tab group', () => {
         </fluid-tab>
       </fluid-tab-group>
       `;
+      await tick();
+      fixture = document.querySelector<FluidTabGroup>('fluid-tab-group')!;
       // Ticking twice otherwise the dom isn't updated.
       await tick();
       await tick();
-      fixture = document.querySelector<FluidTabGroup>('fluid-tab-group')!;
-      await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe('section2');
+      expect(getFirstSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
+        '0',
+      );
+      expect(getLastSpanElementFromFluidTab().getAttribute('tabIndex')).toBe(
+        '-1',
+      );
     });
 
-    it('should set the active tab correctly after removing all tabs', async () => {
-      expect(fixture.getAttribute('activeTabId')).toBe('section1');
+    it('should set the tabIndex correctly after removing all tabs', async () => {
+      expect(getFirstSpanElementFromFluidTab().tabIndex).toBe(0);
       document.body.innerHTML = `
       <fluid-tab-group>
       </fluid-tab-group>
@@ -263,23 +285,7 @@ describe('Fluid tab group', () => {
       await tick();
       fixture = document.querySelector<FluidTabGroup>('fluid-tab-group')!;
       await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe(null);
-    });
-
-    it('should set the active tab correctly after removing all tabs after interaction', async () => {
-      getLastSpanElementFromFluidTab()?.click();
-      await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe('section2');
-      document.body.innerHTML = `
-      <fluid-tab-group>
-      </fluid-tab-group>
-      `;
-      // Ticking twice otherwise the dom isn't updated.
-      await tick();
-      await tick();
-      fixture = document.querySelector<FluidTabGroup>('fluid-tab-group')!;
-      await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe(null);
+      expect(fixture.getAttribute('selectedtabid')).toBe(null);
     });
   });
 
@@ -290,13 +296,30 @@ describe('Fluid tab group', () => {
       await tick();
       dispatchKeyboardEvent(tab!, 'keyup', ARROW_RIGHT);
       await tick();
-      dispatchFakeEvent(getLastSpanElementFromFluidTab(), 'blur');
       await tick();
       expect(blurSpy).toHaveBeenCalledTimes(1);
-      expect(
-        fixture.querySelector<FluidTab>('fluid-tab:last-child')?.tabindex,
-      ).toBe(-1);
-      expect(fixture.querySelector<FluidTab>('fluid-tab')?.tabindex).toBe(0);
+      expect(getFirstSpanElementFromFluidTab()?.tabIndex).toBe(-1);
+      expect(getLastSpanElementFromFluidTab()?.tabIndex).toBe(0);
+    });
+  });
+
+  describe('Space default scroll prevention', () => {
+    it('should prevent the default scroll behaviour', () => {
+      const event = dispatchKeyboardEvent(
+        fixture.querySelector<FluidTab>('fluid-tab')!,
+        'keydown',
+        SPACE,
+      );
+      expect(event.defaultPrevented).toBeTruthy();
+    });
+  });
+
+  describe('Multiple selected tabs', () => {
+    it('Should not allow multiple tabs to be selected', async () => {
+      const tab1 = fixture.querySelector<FluidTab>('fluid-tab')!;
+      const tab2 = fixture.querySelector<FluidTab>('fluid-tab:last-child')!;
+      tab1.selected = true;
+      tab2.selected = true;
     });
   });
 });

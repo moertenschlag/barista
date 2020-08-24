@@ -29,9 +29,7 @@ import { FluidTab } from '../tab/tab';
 import {
   FluidTabActivatedEvent,
   FluidTabDisabledEvent,
-  FluidTabGroupActiveTabChanged,
   FluidTabBlurredEvent,
-  FluidTabActiveSetEvent,
 } from '../tab-events';
 import {
   ENTER,
@@ -82,50 +80,32 @@ export class FluidTabGroup extends LitElement {
   }
 
   /**
-   * Defines the currently active tabid
+   * Defines the currently selected tabid
    * @attr
    * @type string
    */
   @property({ type: String, reflect: true })
   activeTabId: string;
 
-  /** Sets the activeTabId. Handles programatically calling the active setter on the fluid-tab */
-  private _setActiveTabId(activeSetEvent: FluidTabActiveSetEvent): void {
-    this.activeTabId = activeSetEvent.tabId;
-    for (const tab of this.tabChildren) {
-      if (tab.tabid !== this.activeTabId) {
-        tab.active = false;
-      }
-    }
-  }
-
-  /** Sets the active tab on click */
-  private _handleClick(event: FluidTabActivatedEvent): void {
-    const toActivateTab = this.tabChildren.find(
-      (tabItem) => tabItem.tabid === event.tabId,
+  /** Sets the selected tab on click */
+  private _handleSelectTab(event: FluidTabSelectedEvent): void {
+    // Auto deselect tab
+    const toResetTab = this.tabChildren.find(
+      (tab) => tab.selected && tab.tabId !== event.selectedTabId,
     );
-
-    if (toActivateTab) {
-      // Resets all tabs
-      const toResetTab = this.tabChildren.find((tab) => tab.active);
-      if (toResetTab) {
-        toResetTab.tabindex = -1;
-        toResetTab.active = false;
-        toResetTab.tabbed = false;
-      }
-      this.activeTabId = event.tabId;
-
-      toActivateTab.active = true;
-      toActivateTab.tabindex = 0;
-      this.dispatchEvent(new FluidTabGroupActiveTabChanged(event.tabId));
+    if (toResetTab) {
+      toResetTab.tabIndex = -1;
+      toResetTab.selected = false;
+      toResetTab.tabbed = false;
     }
+    this.selectedTabId = event.selectedTabId;
   }
 
-  /** Sets the active tab on keydown (ArrowLeft and ArrowRight to select / Enter and Space to confirm) */
+  /** Sets the selected tab on keydown (ArrowLeft and ArrowRight to select / Enter and Space to confirm) */
   private _handleKeyUp(event: KeyboardEvent): void {
     // Sets the focus outline when user tabbed into the tab group
     if (event.code === TAB) {
-      const focusableTab = this.tabChildren.find((tab) => tab.tabindex === 0);
+      const focusableTab = this.tabChildren.find((tab) => tab.tabIndex === 0);
 
       if (focusableTab) {
         focusableTab.tabbed = true;
@@ -135,7 +115,7 @@ export class FluidTabGroup extends LitElement {
     // Selection control. Selects the tab that was focused using tab/arrowkeys
     if (event.code === ENTER || event.code === SPACE) {
       const toBeActivatedTab = this.tabChildren.find(
-        (tab) => tab.tabindex === 0,
+        (tab) => tab.tabIndex === 0,
       );
 
       if (toBeActivatedTab) {
@@ -144,15 +124,14 @@ export class FluidTabGroup extends LitElement {
           toDeactivateTab.active = false;
         }
 
-        toBeActivatedTab.active = true;
-        this.activeTabId = toBeActivatedTab.tabid;
-        this.dispatchEvent(new FluidTabGroupActiveTabChanged(this.activeTabId));
+        toBeActivatedTab.selected = true;
+        this.selectedTabId = toBeActivatedTab.tabId;
       }
     }
     // Arrow control (navigate tabs)
     if (event.code === ARROW_RIGHT || event.code === ARROW_LEFT) {
       let index = this.tabChildren.findIndex(
-        (tab: FluidTab) => tab.tabindex === 0,
+        (tab: FluidTab) => tab.tabIndex === 0,
       );
       const oldIndex = index;
       if (event.code === ARROW_RIGHT) {
@@ -180,44 +159,39 @@ export class FluidTabGroup extends LitElement {
     }
   }
 
-  /** Checks whether the next tab is also disabled or not and sets the next available tab as active  */
+  /** Checks whether the next tab is also disabled or not and selects the next available tab */
   private _handleDisabled(disableTabEvent: FluidTabDisabledEvent): void {
-    if (this.activeTabId === disableTabEvent.tabId) {
-      this.setFirstEnabledTabActive();
+    if (this.selectedTabId === disableTabEvent.tabId) {
+      this.setFirstTabIndex();
     }
   }
 
   /** Resets the tabindex if the user lost focus without activating the selected tab */
   private _handleBlur(event: FluidTabBlurredEvent): void {
     // Sets the selected but not activated tabs tabindex to -1
-    const toDisableTabIndexTab = this.tabChildren.find(
-      (tab) => tab.tabid === event.tabId,
-    );
-    if (toDisableTabIndexTab) {
-      toDisableTabIndexTab.tabindex = -1;
-    }
-    // Sets the active tabs tabindex to 0
-    const toEnableTabIndexTab = this.tabChildren.find((tab) => tab.active);
-    if (toEnableTabIndexTab) {
-      toEnableTabIndexTab.tabindex = 0;
+    const toBlurTab = this.tabChildren.find((tab) => tab.tabId === event.tabId);
+    const selectedTab = this.tabChildren.find((tab) => tab.selected);
+    if (toBlurTab && selectedTab && toBlurTab.tabbed && !toBlurTab.selected) {
+      toBlurTab.tabIndex = -1;
+      selectedTab.tabIndex = 0;
     }
   }
 
-  /** Handles changes in the slot. Initially sets the active item (default is first) */
+  /** Handles changes in the slot. Initially sets the tabindex to 0 of the first available tab */
   private _slotchange(): void {
     this.tabChildren = Array.from(this.querySelectorAll('fluid-tab'));
     // Set all tabindexes to -1 because the default is 0
     for (const tab of this.tabChildren) {
-      tab.tabindex = -1;
+      tab.tabIndex = -1;
     }
-    this.checkForMutipleActiveTabs();
-    // Set a tab to active
-    const activeTab = this.tabChildren.find((tab) => tab.active);
-    if (activeTab) {
-      activeTab.tabindex = 0;
-      this.activeTabId = activeTab.tabid;
+    this.checkForMutipleSelectedTabs();
+    // Selectes a tab
+    const selectedTab = this.tabChildren.find((tab) => tab.selected);
+    if (selectedTab) {
+      selectedTab.tabIndex = 0;
+      this.selectedTabId = selectedTab.tabId;
     } else {
-      this.setFirstEnabledTabActive();
+      this.setFirstTabIndex();
     }
   }
 
@@ -229,36 +203,39 @@ export class FluidTabGroup extends LitElement {
     return html`
       <div
         class="fluid-tab-group"
-        @activeSet="${this._setActiveTabId}"
-        @tabActivated="${this._handleClick}"
+        @select="${this._handleSelectTab}"
         @blur="${this._handleBlur}"
         @keyup="${this._handleKeyUp}"
         @keydown="${this._handleKeyDown}"
-        @disabled="${this._handleDisabled}"
+        @disable="${this._handleDisabled}"
       >
         <slot @slotchange="${this._slotchange}"></slot>
       </div>
     `;
   }
 
-  /** Sets an available tab to active. (Not disabled) */
-  setFirstEnabledTabActive(): void {
-    let tabToEnable;
-    if (this.activeTabId) {
+  /** Sets the tabindex to 0 of the first available tab. (Not disabled) */
+  setFirstTabIndex(): void {
+    let tabToEnable: FluidTab | undefined;
+    if (
+      this.selectedTabId &&
+      this.tabChildren.find(
+        (tab) => tab.tabId === this.selectedTabId && !tab.disabled,
+      )
+    ) {
       tabToEnable = this.tabChildren.find(
-        (tab) => tab.tabid === this.activeTabId,
+        (tab) => tab.tabId === this.selectedTabId,
       );
     } else {
       tabToEnable = this.tabChildren.find((tab) => !tab.disabled);
     }
     if (tabToEnable) {
-      tabToEnable.active = true;
-      this.activeTabId = tabToEnable.tabid;
+      tabToEnable.tabIndex = 0;
     }
   }
 
-  /** Checks whether multiple tabs are active. If so every other tab but the first active tab will be deactivated */
-  checkForMutipleActiveTabs(): void {
+  /** Checks whether multiple tabs are selected. If so deselect every tab but the first. */
+  checkForMutipleSelectedTabs(): void {
     if (this.tabChildren.length > 0) {
       const tabs = this.tabChildren.filter((tab) => {
         if (tab.active) {
@@ -267,15 +244,15 @@ export class FluidTabGroup extends LitElement {
       });
 
       if (tabs.length > 1) {
-        const activeTab = tabs[0];
+        const selectedTab = tabs[0];
         for (const tab of this.tabChildren) {
           tab.active = false;
         }
-        const tabToBeActive = this.tabChildren.find(
-          (tab) => tab.tabid === activeTab?.tabid,
+        const tabToBeSelected = this.tabChildren.find(
+          (tab) => tab.tabId === selectedTab?.tabId,
         );
-        if (tabToBeActive) {
-          tabToBeActive.active = true;
+        if (tabToBeSelected) {
+          tabToBeSelected.selected = true;
         }
       }
     }

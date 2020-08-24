@@ -50,8 +50,8 @@ describe('Fluid tab', () => {
     // Add spied eventListeners
     fixture = document.querySelector<FluidTab>('fluid-tab')!;
 
-    tabActivatedSpy = jest.fn();
-    fixture.addEventListener('tabActivated', tabActivatedSpy);
+    tabSelected = jest.fn();
+    fixture.addEventListener('select', tabSelected);
   });
 
   afterEach(() => {
@@ -77,25 +77,25 @@ describe('Fluid tab', () => {
       expect(isActive()).toBeTruthy();
     });
 
-    it('should remove active when the attribute is removed', async () => {
-      fixture.setAttribute('active', 'true');
+    it('should remove select when the attribute is removed', async () => {
+      fixture.setAttribute('selected', 'true');
       await tick();
-      fixture.removeAttribute('active');
+      fixture.removeAttribute('selected');
       await tick();
-      expect(fixture.active).toBeFalsy();
+      expect(fixture.selected).toBeFalsy();
     });
 
-    it('should remove active when the property is set to false', async () => {
-      fixture.active = true;
+    it('should remove select when the property is set to false', async () => {
+      fixture.selected = true;
       await tick();
       expect(
         fixture.shadowRoot
           ?.querySelector('span')
-          ?.classList.contains('fluid-state--active'),
+          ?.classList.contains('fluid-state--selected'),
       ).toBeTruthy();
-      fixture.active = false;
+      fixture.selected = false;
       await tick();
-      expect(fixture.getAttribute('active')).toBeFalsy();
+      expect(fixture.getAttribute('selected')).toBeFalsy();
     });
   });
 
@@ -146,7 +146,7 @@ describe('Fluid tab', () => {
     it('should set tabindex to -1 when disabled is true', async () => {
       fixture.disabled = true;
       await tick();
-      expect(fixture.tabindex).toBe(-1);
+      expect(fixture.tabIndex).toBe(-1);
     });
   });
 

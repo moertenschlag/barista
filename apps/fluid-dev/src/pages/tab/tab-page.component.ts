@@ -24,11 +24,13 @@ import '@dynatrace/fluid-elements/tab-group';
 export class FluidTabPage {
   disabled = false;
 
-  active = false;
+  selected = false;
 
   showLastTab = true;
 
   logs: Event[] = [];
+
+  constructor() {}
 
   handleChange(evt: Event): void {
     this.logs.push(evt);
