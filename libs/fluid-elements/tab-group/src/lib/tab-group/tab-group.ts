@@ -27,7 +27,7 @@ import {
 
 import { FluidTab } from '../tab/tab';
 import {
-  FluidTabActivatedEvent,
+  FluidTabSelectedEvent,
   FluidTabDisabledEvent,
   FluidTabBlurredEvent,
 } from '../tab-events';
@@ -85,7 +85,7 @@ export class FluidTabGroup extends LitElement {
    * @type string
    */
   @property({ type: String, reflect: true })
-  activeTabId: string;
+  selectedTabId: string;
 
   /** Sets the selected tab on click */
   private _handleSelectTab(event: FluidTabSelectedEvent): void {
@@ -119,9 +119,9 @@ export class FluidTabGroup extends LitElement {
       );
 
       if (toBeActivatedTab) {
-        const toDeactivateTab = this.tabChildren.find((tab) => tab.active);
+        const toDeactivateTab = this.tabChildren.find((tab) => tab.selected);
         if (toDeactivateTab) {
-          toDeactivateTab.active = false;
+          toDeactivateTab.selected = false;
         }
 
         toBeActivatedTab.selected = true;
@@ -171,9 +171,11 @@ export class FluidTabGroup extends LitElement {
     // Sets the selected but not activated tabs tabindex to -1
     const toBlurTab = this.tabChildren.find((tab) => tab.tabId === event.tabId);
     const selectedTab = this.tabChildren.find((tab) => tab.selected);
-    if (toBlurTab && selectedTab && toBlurTab.tabbed && !toBlurTab.selected) {
+    if (toBlurTab && toBlurTab.tabbed && !toBlurTab.selected) {
       toBlurTab.tabIndex = -1;
-      selectedTab.tabIndex = 0;
+      if (selectedTab) {
+        selectedTab.tabIndex = 0;
+      }
     }
   }
 
@@ -238,7 +240,7 @@ export class FluidTabGroup extends LitElement {
   checkForMutipleSelectedTabs(): void {
     if (this.tabChildren.length > 0) {
       const tabs = this.tabChildren.filter((tab) => {
-        if (tab.active) {
+        if (tab.selected) {
           return tab;
         }
       });
@@ -246,7 +248,7 @@ export class FluidTabGroup extends LitElement {
       if (tabs.length > 1) {
         const selectedTab = tabs[0];
         for (const tab of this.tabChildren) {
-          tab.active = false;
+          tab.selected = false;
         }
         const tabToBeSelected = this.tabChildren.find(
           (tab) => tab.tabId === selectedTab?.tabId,

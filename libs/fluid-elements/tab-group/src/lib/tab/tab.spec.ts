@@ -15,6 +15,7 @@
  */
 
 import { FluidTab } from './tab';
+import { dispatchFakeEvent } from '@dynatrace/testing/browser';
 
 function tick(): Promise<void> {
   return Promise.resolve();
@@ -28,11 +29,12 @@ function getTabRootElement(
 
 describe('Fluid tab', () => {
   let fixture: FluidTab;
-  let tabActivatedSpy: jest.Mock;
+  let selectSpy: jest.Mock;
+  let blurSpy: jest.Mock;
 
-  /** Checks if the current fixture has an active tab */
-  function isActive(): boolean {
-    return fixture.shadowRoot?.querySelector('.fluid-state--active') !== null;
+  /** Checks if the current fixture has a selected tab */
+  function isSelected(): boolean {
+    return fixture.shadowRoot?.querySelector('.fluid-state--selected') !== null;
   }
 
   beforeEach(() => {
@@ -50,8 +52,11 @@ describe('Fluid tab', () => {
     // Add spied eventListeners
     fixture = document.querySelector<FluidTab>('fluid-tab')!;
 
-    tabSelected = jest.fn();
-    fixture.addEventListener('select', tabSelected);
+    selectSpy = jest.fn();
+    fixture.addEventListener('select', selectSpy);
+
+    blurSpy = jest.fn();
+    fixture.addEventListener('blur', blurSpy);
   });
 
   afterEach(() => {
@@ -62,19 +67,19 @@ describe('Fluid tab', () => {
     expect(fixture).not.toBe(null);
   });
 
-  describe('active attribute', () => {
-    it('should set the state to active when the attribute is set to true', async () => {
-      fixture.setAttribute('active', '');
+  describe('selected attribute', () => {
+    it('should set the state to selected when the attribute is set to true', async () => {
+      fixture.setAttribute('selected', '');
       await tick();
-      expect(fixture.active).toBeTruthy();
-      expect(isActive()).toBeTruthy();
+      expect(fixture.selected).toBeTruthy();
+      expect(isSelected()).toBeTruthy();
     });
 
-    it('should set the state to active when the property is set to true', async () => {
-      fixture.active = true;
+    it('should set the state to selected when the property is set to true', async () => {
+      fixture.selected = true;
       await tick();
-      expect(fixture.active).toBeTruthy();
-      expect(isActive()).toBeTruthy();
+      expect(fixture.selected).toBeTruthy();
+      expect(isSelected()).toBeTruthy();
     });
 
     it('should remove select when the attribute is removed', async () => {
@@ -96,6 +101,36 @@ describe('Fluid tab', () => {
       fixture.selected = false;
       await tick();
       expect(fixture.getAttribute('selected')).toBeFalsy();
+    });
+  });
+
+  describe('tabbed attribute', () => {
+    it('should set the state to tabbed when the property is set to true', async () => {
+      fixture.tabbed = true;
+      await tick();
+      expect(fixture.tabbed).toBeTruthy();
+    });
+
+    it('should have the class attached when tabbed is set', async () => {
+      fixture.tabbed = true;
+      await tick();
+      expect(
+        fixture.shadowRoot
+          ?.querySelector('span')
+          ?.classList.contains('fluid-state--tabbed'),
+      ).toBeTruthy();
+    });
+
+    it('should not have the class attached when tabbed is set', async () => {
+      fixture.tabbed = true;
+      await tick();
+      fixture.tabbed = false;
+      await tick();
+      expect(
+        fixture.shadowRoot
+          ?.querySelector('span')
+          ?.classList.contains('fluid-state--tabbed'),
+      ).toBeFalsy();
     });
   });
 
@@ -137,10 +172,10 @@ describe('Fluid tab', () => {
       expect(fixture.hasAttribute('disabled')).toBeTruthy();
     });
 
-    it('should set active to false when disabled is true', async () => {
+    it('should set selected to false when disabled is true', async () => {
       fixture.disabled = true;
       await tick();
-      expect(fixture.active).toBeFalsy();
+      expect(fixture.selected).toBeFalsy();
     });
 
     it('should set tabindex to -1 when disabled is true', async () => {
@@ -150,11 +185,30 @@ describe('Fluid tab', () => {
     });
   });
 
-  describe('tabActivated Event', () => {
-    it('should fire event when tab is clicked', async () => {
-      getTabRootElement(fixture)?.click();
+  describe('Events', () => {
+    describe('select event', () => {
+      it('should fire event when tab is clicked', async () => {
+        getTabRootElement(fixture)?.click();
+        await tick();
+        expect(selectSpy).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('blur event', () => {
+      it('should fire event when tab is clicked', async () => {
+        const tab = getTabRootElement(fixture)!;
+        dispatchFakeEvent(tab, 'blur', true);
+        await tick();
+        expect(blurSpy).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('focus function', () => {
+    it('should focus the span in the shadowdom of the tab', async () => {
+      fixture.focus();
       await tick();
-      expect(tabActivatedSpy).toHaveBeenCalledTimes(1);
+      expect(document.activeElement).toBe(fixture);
     });
   });
 });

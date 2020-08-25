@@ -16,7 +16,7 @@
 
 import { FluidTabGroup } from './tab-group';
 import { dispatchKeyboardEvent } from '@dynatrace/testing/browser';
-import { ARROW_RIGHT, SPACE } from '@dynatrace/shared/keycodes';
+import { ARROW_RIGHT, SPACE, TAB } from '@dynatrace/shared/keycodes';
 import { FluidTab } from '../tab/tab';
 
 function tick(): Promise<void> {
@@ -90,7 +90,7 @@ describe('Fluid tab group', () => {
     it('should set selected tab when property is set', async () => {
       fixture.selectedTabId = 'section2';
       await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe('section2');
+      expect(fixture.getAttribute('selectedTabId')).toBe('section2');
     });
 
     it('should set last selectedTabId attribute when a tab is clicked', async () => {
@@ -99,7 +99,7 @@ describe('Fluid tab group', () => {
         ?.shadowRoot?.querySelector('span');
       tab?.click();
       await tick();
-      expect(fixture.getAttribute('activeTabId')).toBe('section2');
+      expect(fixture.getAttribute('selectedTabId')).toBe('section2');
     });
 
     // tslint:disable-next-line: dt-no-focused-tests
@@ -111,7 +111,7 @@ describe('Fluid tab group', () => {
       expect(fixture.getAttribute('selectedtabid')).toBe('section1');
     });
 
-    it('should represent the correct selectedTabId if the tab itself is set to active', async () => {
+    it('should represent the correct selectedTabId if the tab itself is set to selected true', async () => {
       await tick();
       const tab = fixture.querySelector<FluidTab>('fluid-tab:last-child');
       tab!.selected = true;
@@ -224,7 +224,6 @@ describe('Fluid tab group', () => {
       ).toBeTruthy();
     });
 
-    // tslint:disable-next-line: dt-no-focused-tests
     it('should set tabIndex to 0 of a available tab after removing the currently selected tab', async () => {
       document.body.innerHTML = `
       <fluid-tab-group>
@@ -296,10 +295,21 @@ describe('Fluid tab group', () => {
       await tick();
       dispatchKeyboardEvent(tab!, 'keyup', ARROW_RIGHT);
       await tick();
-      await tick();
       expect(blurSpy).toHaveBeenCalledTimes(1);
-      expect(getFirstSpanElementFromFluidTab()?.tabIndex).toBe(-1);
-      expect(getLastSpanElementFromFluidTab()?.tabIndex).toBe(0);
+    });
+
+    it('should set tabindexes when blurring', async () => {
+      const tab1 = fixture.querySelector<FluidTab>('fluid-tab');
+      const tab2 = fixture.querySelector<FluidTab>('fluid-tab:last-child');
+      tab1?.focus();
+      await tick();
+      tab2!.selected = true;
+      await tick();
+      dispatchKeyboardEvent(tab1!, 'keyup', TAB);
+      await tick();
+      expect(blurSpy).toHaveBeenCalledTimes(0);
+      expect(tab1?.tabIndex).toBe(0);
+      expect(tab2?.tabIndex).toBe(0);
     });
   });
 
@@ -320,6 +330,18 @@ describe('Fluid tab group', () => {
       const tab2 = fixture.querySelector<FluidTab>('fluid-tab:last-child')!;
       tab1.selected = true;
       tab2.selected = true;
+    });
+  });
+
+  describe('keyboard', () => {
+    it('should set tabbed after pressing tab to focus a tab', async () => {
+      dispatchKeyboardEvent(
+        fixture.querySelector<FluidTab>('fluid-tab')!,
+        'keyup',
+        TAB,
+      );
+      await tick();
+      expect(fixture.querySelector<FluidTab>('fluid-tab')!.tabbed).toBeTruthy();
     });
   });
 });

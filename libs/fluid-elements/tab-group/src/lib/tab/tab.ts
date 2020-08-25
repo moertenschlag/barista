@@ -25,7 +25,11 @@ import {
   customElement,
 } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
-import { FluidTabDisabledEvent, FluidTabBlurredEvent } from '../tab-events';
+import {
+  FluidTabDisabledEvent,
+  FluidTabBlurredEvent,
+  FluidTabSelectedEvent,
+} from '../tab-events';
 
 import {
   FLUID_SPACING_3X_SMALL,
