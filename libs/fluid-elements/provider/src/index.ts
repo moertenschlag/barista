@@ -14,15 +14,4 @@
  * limitations under the License.
  */
 
-/*
- * THIS FILE IS GENERATED BASED ON THE DESIGN TOKENS DEFINED IN THE src/**.yml
- * FILES, DO NOT CHANGE MANUALLY.
- * TO GENERATE THESE FILES RUN 'ng build shared-design-tokens'
- */
-
-export const FLUID_BUTTON_PADDING_SMALL =
-  'var(--fluid-spacing-x-small) var(--fluid-spacing-x-large)';
-export const FLUID_BUTTON_PADDING_MEDIUM =
-  'var(--fluid-spacing-small) var(--fluid-spacing-x-large)';
-export const FLUID_BUTTON_PADDING_LARGE =
-  'var(--fluid-spacing-medium) var(--fluid-spacing-x-large)';
+export * from './lib/provider';

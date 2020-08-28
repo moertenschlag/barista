@@ -56,9 +56,6 @@ export class FluidTab extends LitElement {
         * Legibility definitions should probably be
         * shipped or imported from a core
         */
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-rendering: optimizeLegibility;
         margin-right: ${unsafeCSS(FLUID_SPACING_MEDIUM)};
 
         --fluid-tab--label-color: var(--color-neutral-100);

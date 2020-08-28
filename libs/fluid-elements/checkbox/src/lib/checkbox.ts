@@ -69,14 +69,6 @@ export class FluidCheckbox extends LitElement {
   static get styles(): CSSResult {
     return css`
       :host {
-        /**
-        * Legibility definitions should probably be
-        * shipped or imported from a core
-        */
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-rendering: optimizeLegibility;
-
         --fluid-checkbox--label-color: var(--color-neutral-150);
         --fluid-checkbox--box-glow-color: var(--color-neutral-150);
         --fluid-checkbox--border-color: var(--color-neutral-150);

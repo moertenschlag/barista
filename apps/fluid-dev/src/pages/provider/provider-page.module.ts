@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-/*
- * THIS FILE IS GENERATED BASED ON THE DESIGN TOKENS DEFINED IN THE src/**.yml
- * FILES, DO NOT CHANGE MANUALLY.
- * TO GENERATE THESE FILES RUN 'ng build shared-design-tokens'
- */
+import { CommonModule } from '@angular/common';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Route, RouterModule } from '@angular/router';
+import { FluidProviderPage } from './provider-page.component';
 
-export const FLUID_BUTTON_PADDING_SMALL =
-  'var(--fluid-spacing-x-small) var(--fluid-spacing-x-large)';
-export const FLUID_BUTTON_PADDING_MEDIUM =
-  'var(--fluid-spacing-small) var(--fluid-spacing-x-large)';
-export const FLUID_BUTTON_PADDING_LARGE =
-  'var(--fluid-spacing-medium) var(--fluid-spacing-x-large)';
+export const routes: Route[] = [
+  {
+    path: '',
+    component: FluidProviderPage,
+  },
+];
+
+@NgModule({
+  imports: [CommonModule, RouterModule.forChild(routes)],
+  declarations: [FluidProviderPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class FluidProviderPageModule {}

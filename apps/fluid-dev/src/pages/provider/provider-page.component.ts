@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Component } from '@angular/core';
+import '@dynatrace/fluid-elements/provider';
+import '@dynatrace/fluid-elements/button';
 
-/*
- * THIS FILE IS GENERATED BASED ON THE DESIGN TOKENS DEFINED IN THE src/**.yml
- * FILES, DO NOT CHANGE MANUALLY.
- * TO GENERATE THESE FILES RUN 'ng build shared-design-tokens'
- */
-
-export const FLUID_BUTTON_PADDING_SMALL =
-  'var(--fluid-spacing-x-small) var(--fluid-spacing-x-large)';
-export const FLUID_BUTTON_PADDING_MEDIUM =
-  'var(--fluid-spacing-small) var(--fluid-spacing-x-large)';
-export const FLUID_BUTTON_PADDING_LARGE =
-  'var(--fluid-spacing-medium) var(--fluid-spacing-x-large)';
+@Component({
+  selector: 'fluid-provider-page',
+  templateUrl: 'provider-page.component.html',
+  styleUrls: ['provider-page.component.scss'],
+})
+export class FluidProviderPage {
+  logs: Event[] = [];
+}

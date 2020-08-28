@@ -64,13 +64,6 @@ export class FluidSwitch extends LitElement {
   static get styles(): CSSResult {
     return css`
       :host {
-        /**
-        * Legibility definitions should probably be
-        * shipped or imported from a core
-        */
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-rendering: optimizeLegibility;
         --fluid-switch--label-color: var(--color-neutral-150);
         --fluid-switch--fill: var(--color-background);
         --fluid-switch--container: var(--color-maxcontrast);
