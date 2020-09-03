@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 import * as designTokenModule from '@dynatrace/fluid-design-tokens';
-import { deepFreezeChildren } from '/util';
+import { deepFreezeChildren } from '@dynatrace/fluid-elements/core';
 
 const immutableDesignTokens = deepFreezeChildren(designTokenModule);
+
+/**
+ *
+ */
+const cssPropertyNameCache = new Map<string, string>();
 
 export type FluidDesignTokens = typeof designTokenModule;
 
@@ -122,6 +127,22 @@ export class FluidDesignTokenAccessor {
    */
   removeOverride(name: string): void {
     this._overrides.delete(name);
-    this._allKeys.delete(name);
+    if (!(name in this.originalTokens)) {
+      this._allKeys.delete(name);
+    }
+  }
+
+  /**
+   *
+   * @param tokenName
+   */
+  getCssPropertyName(tokenName: string): string {
+    let cachedName = cssPropertyNameCache[tokenName];
+    if (!cachedName) {
+      cachedName = cssPropertyNameCache[
+        tokenName
+      ] = `--${tokenName.toLowerCase().replace(/\_/g, '-')}`;
+    }
+    return cachedName;
   }
 }

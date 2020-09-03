@@ -16,7 +16,6 @@
 
 import {
   html,
-  LitElement,
   property,
   CSSResult,
   TemplateResult,
@@ -26,6 +25,7 @@ import {
 } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
 
+import { FluidElement } from '@dynatrace/fluid-elements/core';
 import {
   FLUID_BUTTON_PADDING_SMALL,
   FLUID_BUTTON_PADDING_MEDIUM,
@@ -76,7 +76,7 @@ export type FluidButtonEmphasis = 'low' | 'medium' | 'high' | null;
  * @cssprop --fluid-button--background-disabled - Controls the background color for the disabled state.
  */
 @customElement('fluid-button')
-export class FluidButton extends LitElement {
+export class FluidButton extends FluidElement {
   /** Styles for the button component */
   static get styles(): CSSResult {
     return css`

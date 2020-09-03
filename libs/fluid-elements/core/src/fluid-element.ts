@@ -15,28 +15,50 @@
  */
 
 import { LitElement } from 'lit-element';
-import { FluidProvider } from '@dynatrace/fluid-elements/provider';
-import { getParentAcrossDomBoundaries } from './util';
+import {
+  FluidDesignTokens,
+  FluidProvider,
+} from '@dynatrace/fluid-elements/provider';
+import { getParentAcrossDomBoundaries } from './util/dom';
 
-function findProvider(): FluidProvider | null {
-  const parent = getParentAcrossDomBoundaries(this);
-  while (parent !== null) {
-    if (parent instanceof FluidProvider) {
-      return parent;
-    }
+function findParentProvider(element: HTMLElement): FluidProvider | null {
+  let parent = getParentAcrossDomBoundaries(element);
+  if (parent instanceof FluidProvider || parent === null) {
+    return parent;
   }
-  return null;
+
+  return findParentProvider(parent);
 }
 
 export class FluidElement extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
 
-    this._provider = findProvider();
+    this._provider =
+      this instanceof FluidProvider ? this : findParentProvider(this);
+    if (!this.provider) {
+      throw new Error('Fluid elements must be children of a fluid-provider.');
+    }
   }
 
   protected get provider(): FluidProvider {
-    return this._provider;
+    return this._provider!;
+  }
+
+  protected get designTokens(): FluidDesignTokens {
+    return this._provider!.designTokens;
+  }
+
+  getDesignToken(key: string): any {
+    return this.designTokens[key];
+  }
+
+  setOverride(key: string, value: any): void {
+    this._provider!.setOverride(key, value);
+  }
+
+  removeOverride(key: string): void {
+    this._provider!.removeOverride(key);
   }
 
   private _provider: FluidProvider | null = null;

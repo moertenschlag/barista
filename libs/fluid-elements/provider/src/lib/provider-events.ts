@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-import { FluidProvider } from './provider';
+import { FluidDesignTokens } from './token-accessor';
 
-describe('Fluid provider', () => {
-  let fixture: FluidProvider;
-
-  beforeEach(() => {
-    if (!customElements.get('fluid-provider')) {
-      customElements.define('fluid-provider', FluidProvider);
-    }
-    document.body.innerHTML = '<fluid-provider>Hello</fluid-provider>';
-    fixture = document.querySelector<FluidProvider>('fluid-provider')!;
-  });
-
-  it('should create the provider', async () => {
-    expect(fixture).not.toBe(null);
-  });
-});
+/**
+ * Custom event that fires whenever design tokens change.
+ */
+export class FluidProviderTokenChangeEvent extends CustomEvent<
+  FluidDesignTokens
+> {
+  constructor(public designTokens: FluidDesignTokens) {
+    super('tokenchange', { bubbles: true, composed: true });
+  }
+}

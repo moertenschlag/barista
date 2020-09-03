@@ -16,7 +16,6 @@
 
 import {
   html,
-  LitElement,
   CSSResult,
   TemplateResult,
   property,
@@ -26,6 +25,7 @@ import {
 } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
 import { SPACE } from '@dynatrace/shared/keycodes';
+import { FluidElement } from '@dynatrace/fluid-elements/core';
 import {
   FLUID_SPACING_2X_SMALL,
   FLUID_SPACING_X_SMALL,
@@ -55,7 +55,7 @@ let uniqueCounter = 0;
  * @cssprop --fluid-checkbox--mark-color - Customize the color of the mark / indeterminate marker.
  */
 @customElement('fluid-checkbox')
-export class FluidCheckbox extends LitElement {
+export class FluidCheckbox extends FluidElement {
   /**
    * Unique identifier used for the id and label connection
    * within the checkbox.

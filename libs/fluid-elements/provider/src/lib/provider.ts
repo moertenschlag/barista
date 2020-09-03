@@ -16,16 +16,16 @@
 
 import {
   html,
-  LitElement,
   property,
   CSSResult,
   TemplateResult,
   css,
-  // unsafeCSS,
   customElement,
 } from 'lit-element';
-// import { classMap } from 'lit-html/directives/class-map';
+
+import { FluidElement } from '@dynatrace/fluid-elements/core';
 import { FluidDesignTokenAccessor, FluidDesignTokens } from './token-accessor';
+import { FluidProviderTokenChangeEvent } from './provider-events';
 
 /** Defines the possible layout density options. */
 export type FluidLayoutDensity = 'default' | 'dense' | 'loose';
@@ -37,7 +37,7 @@ const supportsAdoptedStylesheets =
   'adoptedStyleSheets' in window.ShadowRoot.prototype;
 
 @customElement('fluid-provider')
-export class FluidProvider extends LitElement {
+export class FluidProvider extends FluidElement {
   /** Styles for the provider component */
   static get styles(): CSSResult {
     return css`
@@ -70,6 +70,7 @@ export class FluidProvider extends LitElement {
 
       this._updateThemeOverrides();
       this._updateCustomProperties();
+      this._dispatchTokenChangeEvent();
     }
   }
   private _theme: FluidTheme = 'abyss';
@@ -92,6 +93,7 @@ export class FluidProvider extends LitElement {
 
       this._updateSpacingOverrides();
       this._updateCustomProperties();
+      this._dispatchTokenChangeEvent();
     }
   }
 
@@ -144,33 +146,35 @@ export class FluidProvider extends LitElement {
 
     this._updateThemeOverrides();
     this._updateCustomProperties();
-
-    console.log(Object.keys(this.designTokens).length);
   }
 
   /**
    *
-   * @param key
+   * @param name
    */
-  getDesignToken(key: string): any {
-    return this.designTokens[key];
+  getDesignToken(name: string): any {
+    return this.designTokens[name];
   }
 
   /**
    *
-   * @param key
+   * @param name
    * @param value
    */
-  setOverride(key: string, value: any): void {
-    this._tokenAccessor.setOverride(key, value);
+  setOverride(name: string, value: any): void {
+    this._tokenAccessor.setOverride(name, value);
+    this._updateCustomProperty(name);
+    this._dispatchTokenChangeEvent();
   }
 
   /**
    *
-   * @param key
+   * @param name
    */
-  removeOverride(key: string): void {
-    this._tokenAccessor.removeOverride(key);
+  removeOverride(name: string): void {
+    this._tokenAccessor.removeOverride(name);
+    this._updateCustomProperty(name);
+    this._dispatchTokenChangeEvent();
   }
 
   /**
@@ -181,8 +185,11 @@ export class FluidProvider extends LitElement {
     return html`<slot></slot>`;
   }
 
-  private _setCustomPropertyFromToken(name: string, value: string): void {
-    const propertyName = `--${name.toLowerCase().replace(/\_/g, '-')}`;
+  private _setCustomPropertyFromToken(
+    name: string,
+    value: string | number,
+  ): void {
+    const propertyName = this._tokenAccessor.getCssPropertyName(name);
     const propertyValue = (value as string | number).toString();
     this._style.setProperty(propertyName, propertyValue);
   }
@@ -195,6 +202,15 @@ export class FluidProvider extends LitElement {
 
       this._setCustomPropertyFromToken(name, value);
     }
+  }
+
+  private _updateCustomProperty(tokenName: string): void {
+    const value = this.designTokens[tokenName];
+    if (typeof value !== 'string' && typeof value !== 'number') {
+      return;
+    }
+
+    this._setCustomPropertyFromToken(tokenName, value);
   }
 
   private _updateThemeOverrides(): void {
@@ -224,5 +240,12 @@ export class FluidProvider extends LitElement {
       );
       this.setOverride(name, `${densityAdjustedValue}px`);
     }
+  }
+
+  /**
+   * Dispatches a token change event
+   */
+  private _dispatchTokenChangeEvent(): void {
+    this.dispatchEvent(new FluidProviderTokenChangeEvent(this.designTokens));
   }
 }

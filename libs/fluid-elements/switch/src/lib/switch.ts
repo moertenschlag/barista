@@ -15,7 +15,6 @@
  */
 
 import {
-  LitElement,
   TemplateResult,
   html,
   property,
@@ -25,6 +24,7 @@ import {
 } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
 import { FluidSwitchChangeEvent } from './switch-events';
+import { FluidElement } from '@dynatrace/fluid-elements/core';
 import { SPACE } from '@dynatrace/shared/keycodes';
 
 import {
@@ -50,7 +50,7 @@ let uniqueCounter = 0;
  * @cssprop --fluid-switch--knob - Customize the knob color.
  * @cssprop --fluid-switch--focus - Customize the focus color.
  */
-export class FluidSwitch extends LitElement {
+export class FluidSwitch extends FluidElement {
   /**
    * Unique identifier used for the id and label connection
    * within the switch.
