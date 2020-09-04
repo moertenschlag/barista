@@ -231,6 +231,9 @@
       "@dynatrace/fluid-elements/provider": [
         "libs/fluid-elements/provider/src/index.ts"
       ],
+      "@dynatrace/fluid-elements/shared": [
+        "libs/fluid-elements/shared/src/index.ts"
+      ],
       "@dynatrace/fluid-elements/switch": [
         "libs/fluid-elements/switch/src/index.ts"
       ],

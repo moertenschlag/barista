@@ -27,10 +27,7 @@ import { FluidSwitchChangeEvent } from './switch-events';
 import { FluidElement } from '@dynatrace/fluid-elements/core';
 import { SPACE } from '@dynatrace/shared/keycodes';
 
-import {
-  FLUID_SPACING_3X_SMALL,
-  fluidDtText,
-} from '@dynatrace/fluid-design-tokens';
+import { fluidDtText } from '@dynatrace/fluid-design-tokens';
 
 let uniqueCounter = 0;
 
@@ -146,7 +143,7 @@ export class FluidSwitch extends FluidElement {
       .fluid-label {
         ${unsafeCSS(fluidDtText())};
         display: inline-flex;
-        margin-left: ${unsafeCSS(FLUID_SPACING_3X_SMALL)};
+        margin-left: var(--fluid-spacing-3x-small);
         color: var(--fluid-switch--label-color);
       }
       .fluid-switch-label:hover .fluid-switch-glow {

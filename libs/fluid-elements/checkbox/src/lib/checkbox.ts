@@ -26,11 +26,7 @@ import {
 import { classMap } from 'lit-html/directives/class-map';
 import { SPACE } from '@dynatrace/shared/keycodes';
 import { FluidElement } from '@dynatrace/fluid-elements/core';
-import {
-  FLUID_SPACING_2X_SMALL,
-  FLUID_SPACING_X_SMALL,
-  fluidDtText,
-} from '@dynatrace/fluid-design-tokens';
+import { fluidDtText } from '@dynatrace/fluid-design-tokens';
 import {
   FluidCheckboxChangeEvent,
   FluidCheckboxIndeterminateChangeEvent,
@@ -91,7 +87,7 @@ export class FluidCheckbox extends FluidElement {
       }
 
       .fluid-checkbox {
-        margin-left: -${unsafeCSS(FLUID_SPACING_2X_SMALL)};
+        margin-left: calc(var(--fluid-spacing-2x-small) * -1)
         display: flex;
         position: relative;
       }
@@ -99,7 +95,7 @@ export class FluidCheckbox extends FluidElement {
       .fluid-label {
         ${unsafeCSS(fluidDtText())};
         color: var(--fluid-checkbox--label-color);
-        margin-left: ${unsafeCSS(FLUID_SPACING_X_SMALL)};
+        margin-left: var(--fluid-spacing-x-small);
       }
 
       label {
@@ -116,8 +112,8 @@ export class FluidCheckbox extends FluidElement {
         position: absolute;
         width: 24px;
         height: 24px;
-        top: -${unsafeCSS(FLUID_SPACING_2X_SMALL)};
-        left: -${unsafeCSS(FLUID_SPACING_2X_SMALL)};
+        top: calc(var(--fluid-spacing-2x-small) * -1);
+        left: calc(var(--fluid-spacing-2x-small) * -1);
         opacity: 0;
       }
 

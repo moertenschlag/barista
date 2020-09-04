@@ -19,7 +19,7 @@ import {
   FluidDesignTokens,
   FluidProvider,
 } from '@dynatrace/fluid-elements/provider';
-import { getParentAcrossDomBoundaries } from './util/dom';
+import { getParentAcrossDomBoundaries } from '@dynatrace/fluid-elements/shared';
 
 function findParentProvider(element: HTMLElement): FluidProvider | null {
   let parent = getParentAcrossDomBoundaries(element);

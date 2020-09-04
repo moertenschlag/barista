@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import * as designTokenModule from '@dynatrace/fluid-design-tokens';
-import { deepFreezeChildren } from '@dynatrace/fluid-elements/core';
+import { deepFreezeChildren } from '@dynatrace/fluid-elements/shared';
 
 const immutableDesignTokens = deepFreezeChildren(designTokenModule);
 

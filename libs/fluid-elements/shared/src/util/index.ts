@@ -14,4 +14,5 @@
  * limitations under the License.
  */
 
-export * from './fluid-element';
+export * from './dom';
+export * from './object';
