@@ -21,6 +21,10 @@ import {
 } from '@dynatrace/fluid-elements/provider';
 import { getParentAcrossDomBoundaries } from '@dynatrace/fluid-elements/shared';
 
+/**
+ *
+ * @param element The element to find the provider for
+ */
 function findParentProvider(element: HTMLElement): FluidProvider | null {
   let parent = getParentAcrossDomBoundaries(element);
   if (parent instanceof FluidProvider || parent === null) {
@@ -31,9 +35,23 @@ function findParentProvider(element: HTMLElement): FluidProvider | null {
 }
 
 export class FluidElement extends LitElement {
+  private _provider: FluidProvider | null = null;
+
+  /** The nearest ancestor {@link FluidProvider} of the component. */
+  protected get provider(): FluidProvider {
+    return this._provider!;
+  }
+
+  /** All design tokens provided by the nearest ancestor {@link FluidProvider} as an object with key-value pairs */
+  protected get designTokens(): FluidDesignTokens {
+    return this._provider!.designTokens;
+  }
+
+  /** @inheritdoc */
   connectedCallback(): void {
     super.connectedCallback();
 
+    // Cache the provider
     this._provider =
       this instanceof FluidProvider ? this : findParentProvider(this);
     if (!this.provider) {
@@ -41,25 +59,11 @@ export class FluidElement extends LitElement {
     }
   }
 
-  protected get provider(): FluidProvider {
-    return this._provider!;
+  /**
+   * Retrieves the value of a design token from the nearest ancestor {@link FluidProvider} by name.
+   * @param name The name of the design token
+   */
+  getDesignTokenValue(name: string): any {
+    return this._provider!.getDesignTokenValue(name);
   }
-
-  protected get designTokens(): FluidDesignTokens {
-    return this._provider!.designTokens;
-  }
-
-  getDesignToken(key: string): any {
-    return this.designTokens[key];
-  }
-
-  setOverride(key: string, value: any): void {
-    this._provider!.setOverride(key, value);
-  }
-
-  removeOverride(key: string): void {
-    this._provider!.removeOverride(key);
-  }
-
-  private _provider: FluidProvider | null = null;
 }

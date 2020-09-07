@@ -16,35 +16,29 @@
 import * as designTokenModule from '@dynatrace/fluid-design-tokens';
 import { deepFreezeChildren } from '@dynatrace/fluid-elements/shared';
 
+// Don't freeze the entire object but just its values since
+// that wouldn't work with the Proxy
 const immutableDesignTokens = deepFreezeChildren(designTokenModule);
 
-/**
- *
- */
+/** Stores CSS property names for design tokens to avoid recomputation */
 const cssPropertyNameCache = new Map<string, string>();
 
 export type FluidDesignTokens = typeof designTokenModule;
 
 export class FluidDesignTokenAccessor {
-  /**
-   *
-   */
+  /** Proxy object for the design tokens */
   tokens: FluidDesignTokens; // Proxy
 
-  /**
-   *
-   */
+  /** Contains the original design token values */
   originalTokens: FluidDesignTokens = immutableDesignTokens;
 
-  /**
-   *
-   */
+  /** Stores overriden design token values by name */
   private _overrides = new Map<string, any>();
 
-  /**
-   * Object keys are cached for fast access on iteration.
-   */
+  /** Caches object keys for fast access on iteration. */
   private _allKeys = new Set([
+    // All property names and symbols must be included to work
+    // with the proxy even if we don't use them.
     ...Object.getOwnPropertyNames(this.originalTokens),
     ...Object.getOwnPropertySymbols(this.originalTokens),
   ]);
@@ -112,20 +106,26 @@ export class FluidDesignTokenAccessor {
   }
 
   /**
+   * Creates or overrides a design token with the given name.
    *
-   * @param name
-   * @param value
+   * If no design token with the given name exists, it will be created.
+   * Otherwise, the value will be overwritten.
+   * @param name Name of the design token
+   * @param value New value of the design token
    */
-  setOverride(name: string, value: any): void {
+  setToken(name: string, value: any): void {
     this._overrides.set(name, value);
     this._allKeys.add(name);
   }
 
   /**
+   * Resets an overriden token to its initial value.
    *
-   * @param name
+   * If the token was created dynamically, it will be removed.
+   * If an existing token was overwritten, its value will be reset.
+   * @param name The name of the design token to reset
    */
-  removeOverride(name: string): void {
+  resetToken(name: string): void {
     this._overrides.delete(name);
     if (!(name in this.originalTokens)) {
       this._allKeys.delete(name);
@@ -133,8 +133,8 @@ export class FluidDesignTokenAccessor {
   }
 
   /**
-   *
-   * @param tokenName
+   * Creates a CSS property name for the given token name
+   * @param tokenName The JavaScript token name in UPPER_CASE_SNAKE_CASE
    */
   getCssPropertyName(tokenName: string): string {
     let cachedName = cssPropertyNameCache[tokenName];

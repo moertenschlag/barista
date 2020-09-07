@@ -16,7 +16,11 @@
 
 // Sourced from https://github.com/microsoft/fast/blob/master/packages/web-components/fast-foundation/src/utilities/composed-parent.ts
 /**
+ * Returns the parent element, ignoring shadow DOM boundaries.
  *
+ * If the element is a direct child of a shadow root host,
+ * the shadow root's host element will be returned. Otherwise,
+ * the regular element parent will be returned.
  * @param element The HTML element to retrieve the parent from
  */
 export function getParentAcrossDomBoundaries<T extends HTMLElement>(

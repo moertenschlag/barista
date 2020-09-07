@@ -8,5 +8,4 @@ ts_config(
     deps = [
         "//:tsconfig.base.json",
     ],
-
 )

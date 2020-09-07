@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 import { FluidProviderPage } from './provider-page.component';
+import { FormsModule } from '@angular/forms';
 
 export const routes: Route[] = [
   {
@@ -27,7 +28,7 @@ export const routes: Route[] = [
 ];
 
 @NgModule({
-  imports: [CommonModule, RouterModule.forChild(routes)],
+  imports: [CommonModule, FormsModule, RouterModule.forChild(routes)],
   declarations: [FluidProviderPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

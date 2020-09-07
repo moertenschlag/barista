@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * Freezes an object recursively.
+ * @param object The object that should be frozen
+ */
 export function deepFreeze<T>(object: T): T {
   Object.freeze(object);
 
@@ -26,6 +30,10 @@ export function deepFreeze<T>(object: T): T {
   return object;
 }
 
+/**
+ * Freezes the values of an object recursively, leaving the object itself unfrozen.
+ * @param object The object whose children should be frozen
+ */
 export function deepFreezeChildren<T>(object: T): T {
   for (const property of Object.values(object)) {
     if (typeof property === 'object') {

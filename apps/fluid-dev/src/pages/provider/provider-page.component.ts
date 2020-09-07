@@ -16,6 +16,12 @@
 import { Component } from '@angular/core';
 import '@dynatrace/fluid-elements/provider';
 import '@dynatrace/fluid-elements/button';
+import '@dynatrace/fluid-elements/checkbox';
+// tslint:disable-next-line: no-duplicate-imports
+import {
+  FluidTheme,
+  FluidLayoutDensity,
+} from '@dynatrace/fluid-elements/provider';
 
 @Component({
   selector: 'fluid-provider-page',
@@ -23,5 +29,12 @@ import '@dynatrace/fluid-elements/button';
   styleUrls: ['provider-page.component.scss'],
 })
 export class FluidProviderPage {
+  _theme: FluidTheme = 'abyss';
+  _layout: FluidLayoutDensity = 'default';
+
   logs: Event[] = [];
+
+  handleDesignTokenChange(event: Event): void {
+    this.logs.push(event);
+  }
 }

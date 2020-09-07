@@ -1,5 +1,36 @@
-<fluid-provider layout="dense">
-  <div class="background-container">
-    <fluid-button>Button</fluid-button>
-  </div>
+<p><strong>Nested provider</strong></p>
+
+<div>
+  <label>Theme: </label>
+  <select [(ngModel)]="_theme" aria-label="Theme selection">
+    <option value="abyss">Abyss</option>
+    <option value="surface">Surface</option>
+  </select>
+</div>
+
+<div>
+  <label>Layout density: </label>
+  <select [(ngModel)]="_layout" aria-label="Layout density selection">
+    <option value="dense">Dense</option>
+    <option value="default">Default</option>
+    <option value="loose">Loose</option>
+  </select>
+</div>
+
+<fluid-provider
+  [theme]="_theme"
+  [layout]="_layout"
+  (tokenchange)="handleDesignTokenChange($event)"
+>
+  <fluid-button>Button</fluid-button>
+  <fluid-checkbox>Checkbox</fluid-checkbox>
 </fluid-provider>
+
+<div>
+  <h2>Logs</h2>
+  <code *ngFor="let log of logs">
+    <pre>
+    {{ log | json | slice: 0:200 }}
+    </pre>
+  </code>
+</div>
