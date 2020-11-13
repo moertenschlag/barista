@@ -125,9 +125,10 @@ export const _DtDatepickerBase = mixinTabIndex(
   styleUrls: ['datepicker.scss'],
   host: {
     class: 'dt-datepicker',
-    '[class.dt-select-invalid]': 'errorState',
+    '[class.dt-datepicker-invalid]': 'errorState',
     '[attr.id]': 'id',
     '[attr.aria-invalid]': 'errorState',
+    '[attr.aria-disabled]': 'disabled.toString()',
   },
   inputs: ['disabled', 'tabIndex'],
   encapsulation: ViewEncapsulation.Emulated,
@@ -200,7 +201,7 @@ export class DtDatePicker<D>
   /** The date to open the calendar to initially. */
   @Input()
   get startAt(): D | null {
-    return this._startAt || this._value;
+    return this._value || this._startAt;
   }
   set startAt(value: D | null) {
     this._startAt = getValidDateOrNull(this._dateAdapter, value);
@@ -217,9 +218,6 @@ export class DtDatePicker<D>
   /** Property that enables the timepicker, so that a time can be entered as well. */
   @Input() isTimeEnabled: boolean;
 
-  /** Property that enables the range mode. */
-  @Input() isRangeEnabled: boolean;
-
   /** Whether or not the overlay panel is open. */
   get panelOpen(): boolean {
     return this._panelOpen;
@@ -235,6 +233,9 @@ export class DtDatePicker<D>
 
   @ViewChild('panel') _panel: ElementRef;
 
+  /** @internal Property that enables the range mode. */
+  _isRangeEnabled: boolean;
+
   /** @internal Defines the positions the overlay can take relative to the button element. */
   _positions = OVERLAY_POSITIONS;
 
@@ -242,18 +243,18 @@ export class DtDatePicker<D>
   _panelDoneAnimating = false;
 
   /** @internal Hour */
-  get hour(): number {
+  get hour(): number | null {
     return this._hour === 0 ? null : this._hour;
   }
 
-  private _hour;
+  private _hour: number | null;
 
   /** @internal Minute */
-  get minute(): number {
+  get minute(): number | null {
     return this._minute === 0 ? null : this._minute;
   }
 
-  private _minute;
+  private _minute: number | null;
 
   /** @internal `View -> model callback called when value changes` */
   _onChange: (value: Date) => void = () => {};
@@ -289,6 +290,7 @@ export class DtDatePicker<D>
     @Optional() @SkipSelf() private _theme: DtTheme,
     @Self() @Optional() readonly ngControl: NgControl,
     @Attribute('tabindex') tabIndex: string,
+    @Optional()
     @Inject(DT_OVERLAY_THEMING_CONFIG)
     private readonly _themeConfig: DtOverlayThemingConfiguration,
     @Optional()
@@ -334,7 +336,7 @@ export class DtDatePicker<D>
   }
 
   /** Sets the datepicker's value. Part of the ControlValueAccessor. */
-  writeValue(value: D): void {
+  writeValue(value: D | null): void {
     this.value = value;
   }
 
@@ -380,10 +382,11 @@ export class DtDatePicker<D>
     this._panelDoneAnimating = this.panelOpen;
 
     if (this.panelOpen) {
-      this._calendar.focus();
-
       if (this.isTimeEnabled) {
         this._handleTimepickerValues();
+        this._timePicker._timeInput._hourInput.nativeElement.focus();
+      } else {
+        this._calendar.focus();
       }
     }
 
@@ -404,15 +407,11 @@ export class DtDatePicker<D>
     this._timePicker._timeInput.minute = this.minute;
   }
 
-  _getTimepickerVisibility(): boolean {
-    return this.isTimeEnabled && this._panelDoneAnimating;
-  }
-
   /**
    * @internal Add a theming class to the overlay only when dark mode is enabled
    */
   _onFadeInStart(): void {
-    if (this.panelOpen && this._theme.variant === 'dark')
+    if (this.panelOpen && this._theme && this._theme.variant === 'dark')
       dtSetOverlayThemeAttribute(
         this._panel.nativeElement,
         this._elementRef.nativeElement,
@@ -424,6 +423,10 @@ export class DtDatePicker<D>
    * @internal Set the selected date.
    */
   _setSelectedValue(value: D): void {
+    if (this.value === value) {
+      return;
+    }
+
     this._value = value;
     this._valueLabel = value
       ? this._dateAdapter.format(value, {
@@ -449,7 +452,7 @@ export class DtDatePicker<D>
   }
 
   /**
-   * @internal Handle the new values when thre are time changes.
+   * @internal Handle the new values when there are time changes.
    */
   _isTimeLabelAvailable(): boolean {
     return this.isTimeEnabled && (this._hour !== 0 || this._minute !== 0);
