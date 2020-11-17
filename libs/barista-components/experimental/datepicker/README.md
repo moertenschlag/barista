@@ -1,5 +1,7 @@
 # Datepicker (experimental)
 
+<ba-live-example name="DtExampleCalendarMinMax" fullwidth></ba-live-example>
+
 <ba-live-example name="DtExampleDatepickerDefault" fullwidth></ba-live-example>
 
 <ba-live-example name="DtExampleDatepickerDark" fullwidth themedark></ba-live-example>

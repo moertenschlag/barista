@@ -15,6 +15,7 @@
  */
 
 import {
+  ALT,
   DOWN_ARROW,
   ENTER,
   LEFT_ARROW,
@@ -140,9 +141,10 @@ export class DtCalendarBody<D> {
   /** The number of blank cells to put at the beginning for the first row. */
   _firstRowOffset: number;
 
-  /** Unique id used for the aria-label. */
+  /** @internal Unique id used for the aria-label. */
   _labelid = `dt-calendar-body-label-${uniqueId++}`;
 
+  /** @internal Label used for aria-describedby if ariaLabelledby is not provided. */
   _label = '';
 
   constructor(
@@ -157,7 +159,10 @@ export class DtCalendarBody<D> {
     this._elementRef.nativeElement.focus();
   }
 
-  /** Checks whether the provided date cell has the same value as the provided compare value. */
+  /**
+   * @internal
+   * Checks whether the provided date cell has the same value as the provided compare value.
+   */
   _isSame(cell: DtCalendarCell<D>, compareValue: D): boolean {
     return (
       compareValue !== null &&
@@ -166,27 +171,43 @@ export class DtCalendarBody<D> {
     );
   }
 
+  /**
+   * @internal
+   * Select date and emit on cell click
+   */
   _cellClicked(cell: DtCalendarCell<D>): void {
     this._setActiveDateAndEmit(cell.rawValue);
     this._selectActiveDate();
     this._changeDetectorRef.markForCheck();
   }
 
+  /**
+   * @internal
+   * Prevent default browser behavior for calendar navigation-specific keys that could otherwise disrupt it
+   */
   _onHostKeydown(event: KeyboardEvent): void {
     const keyCode = _readKeyCode(event);
-    switch (keyCode) {
-      case UP_ARROW:
-      case DOWN_ARROW:
-      case LEFT_ARROW:
-      case RIGHT_ARROW:
-      case PAGE_UP:
-      case PAGE_DOWN:
-      case ENTER:
-      case SPACE:
-        event.preventDefault();
+    let keysToPrevent = [
+      UP_ARROW,
+      DOWN_ARROW,
+      LEFT_ARROW,
+      RIGHT_ARROW,
+      ALT,
+      PAGE_UP,
+      PAGE_DOWN,
+      ENTER,
+      SPACE,
+    ];
+
+    if (keysToPrevent.includes(keyCode)) {
+      event.preventDefault();
     }
   }
 
+  /**
+   * @internal
+   * Defines navigation behaviour for accessibility.
+   */
   _onHostKeyup(event: KeyboardEvent): void {
     const keyCode = _readKeyCode(event);
 

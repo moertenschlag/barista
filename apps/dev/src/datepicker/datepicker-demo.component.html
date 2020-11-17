@@ -23,27 +23,29 @@
 
 <h2>Calendar with min and max date</h2>
 
-<div>
-  Minimum date: {{ datepickerMinDate.value || minDate | date }}
+<dt-checkbox [(ngModel)]="isTodayButtonShown"
+  >Enable Calendar Today Button
+</dt-checkbox>
+
+<div class="calendar-limit-wrapper">
+  <div class="calendar-limit">Minimum date: {{ formattedMinDate }}</div>
+  <div class="calendar-limit">Maximum date: {{ formattedMaxDate }}</div>
   <dt-datepicker
     #datepickerMinDate
     [startAt]="minDate"
     [isTimeEnabled]="false"
   ></dt-datepicker>
-</div>
-<div>
-  Maximum date: {{ datepickerMaxDate.value || maxDate | date }}
   <dt-datepicker
     #datepickerMaxDate
     [startAt]="maxDate"
     [isTimeEnabled]="false"
   ></dt-datepicker>
 </div>
-
 <dt-calendar
   [startAt]="startAt"
   [minDate]="datepickerMinDate.value || minDate"
   [maxDate]="datepickerMaxDate.value || maxDate"
+  [isTodayButtonShown]="isTodayButtonShown"
 ></dt-calendar>
 
 <h2>Timepicker</h2>

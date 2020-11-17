@@ -24,7 +24,11 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { CdkConnectedOverlay } from '@angular/cdk/overlay';
+import {
+  CdkConnectedOverlay,
+  Overlay,
+  ScrollStrategy,
+} from '@angular/cdk/overlay';
 import {
   Attribute,
   ChangeDetectionStrategy,
@@ -242,6 +246,9 @@ export class DtDatePicker<D>
   /** @internal Defines the positions the overlay can take relative to the button element. */
   _positions = OVERLAY_POSITIONS;
 
+  /** @internal Defines the scrolling strategy of the overlay. */
+  _scrollStrategy: ScrollStrategy;
+
   /** @internal Whether the panel's animation is done. */
   _panelDoneAnimating = false;
 
@@ -284,6 +291,7 @@ export class DtDatePicker<D>
   private _destroy$ = new Subject<void>();
 
   constructor(
+    private _overlay: Overlay,
     private _dateAdapter: DtDateAdapter<D>,
     private readonly _changeDetectorRef: ChangeDetectorRef,
     private readonly _elementRef: ElementRef,
@@ -326,6 +334,7 @@ export class DtDatePicker<D>
   /** Opens the overlay panel. */
   open(): void {
     if (!this.disabled && !this._panelOpen) {
+      this._scrollStrategy = this._overlay.scrollStrategies.block();
       this._panelOpen = true;
       this._changeDetectorRef.markForCheck();
     }

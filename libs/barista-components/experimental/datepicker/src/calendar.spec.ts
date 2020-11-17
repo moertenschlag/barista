@@ -275,6 +275,10 @@ describe('DtCalendar', () => {
   });
 });
 
+// ###################################
+// Testing components
+// ###################################
+
 @Component({
   selector: 'dt-test-app',
   template: `
@@ -294,7 +298,7 @@ class SimpleCalendarTestApp {
 }
 
 @Component({
-  selector: 'dt-test-app',
+  selector: 'dt-test-today-app',
   template: ` <dt-calendar [startAt]="startAt"></dt-calendar> `,
 })
 class SimpleCalendarWithoutStartDateTestApp {
@@ -304,7 +308,7 @@ class SimpleCalendarWithoutStartDateTestApp {
 }
 
 @Component({
-  selector: 'dt-test-app',
+  selector: 'dt-test-min-max-app',
   template: `
     <dt-calendar
       [startAt]="startAt"

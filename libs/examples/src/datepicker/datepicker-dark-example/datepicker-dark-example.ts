@@ -25,5 +25,6 @@ export class DtExampleDatepickerDark {
   startAt = new Date(2020, 7, 31);
   isDatepickerDisabled = false;
   isTimepickerDisabled = false;
+  isTodayButtonShown = true;
   isDatepickerTimeEnabled = true;
 }

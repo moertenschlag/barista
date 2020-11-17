@@ -23,6 +23,7 @@ import {
 } from '@dynatrace/barista-components/core';
 import { DtDatepickerModule } from '@dynatrace/barista-components/experimental/datepicker';
 import { DtThemingModule } from '@dynatrace/barista-components/theming';
+import { DtExampleCalendarMinMax } from './calendar-min-max-example/calendar-min-max-example';
 import { DtExampleDatepickerDark } from './datepicker-dark-example/datepicker-dark-example';
 import { DtExampleDatepickerDefault } from './datepicker-default-example/datepicker-default-example';
 
@@ -34,7 +35,11 @@ import { DtExampleDatepickerDefault } from './datepicker-default-example/datepic
     DtCheckboxModule,
     DtNativeDateModule,
   ],
-  declarations: [DtExampleDatepickerDark, DtExampleDatepickerDefault],
+  declarations: [
+    DtExampleCalendarMinMax,
+    DtExampleDatepickerDark,
+    DtExampleDatepickerDefault,
+  ],
   providers: [
     {
       provide: DT_OVERLAY_THEMING_CONFIG,

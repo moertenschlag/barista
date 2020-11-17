@@ -5,21 +5,29 @@
     [startAt]="startAt"
     [disabled]="isDatepickerDisabled"
     [isTimeEnabled]="isDatepickerTimeEnabled"
+    [isTodayButtonShown]="isTodayButtonShown"
   ></dt-datepicker>
   <dt-checkbox [(ngModel)]="isDatepickerDisabled">Disabled</dt-checkbox>
   <dt-checkbox [(ngModel)]="isDatepickerTimeEnabled"
     >Enabled Time Mode</dt-checkbox
   >
+  <dt-checkbox [(ngModel)]="isTodayButtonShown"
+    >Enable Today Button</dt-checkbox
+  >
 
   <h2>Dark Mode Calendar</h2>
 
-  <dt-calendar [startAt]="startAt"></dt-calendar>
+  <dt-calendar
+    [startAt]="startAt"
+    [isTodayButtonShown]="isTodayButtonShown"
+  ></dt-calendar>
 
   <h2>Dark Mode Calendar Body Only</h2>
 
   <dt-calendar-body [activeDate]="startAt"></dt-calendar-body>
 
   <h2>Dark Mode Timepicker</h2>
+
   <dt-timepicker [disabled]="isTimepickerDisabled"></dt-timepicker>
   <dt-checkbox [(ngModel)]="isTimepickerDisabled">Disabled</dt-checkbox>
 </div>
