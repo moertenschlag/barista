@@ -15,6 +15,7 @@
  */
 
 import { Component } from '@angular/core';
+import { DtDateAdapter } from '@dynatrace/barista-components/core';
 
 @Component({
   selector: 'demo-component',
@@ -23,10 +24,14 @@ import { Component } from '@angular/core';
 })
 export class DatepickerDemo {
   startAt = new Date(2020, 7, 31);
+  minDate = new Date(2020, 5, 31);
+  maxDate = new Date(2020, 11, 31);
   isDatepickerDisabled = false;
   isTimepickerDisabled = false;
   isDarkDatepickerDisabled = false;
   isDarkTimepickerDisabled = false;
   isDatepickerTimeEnabled = true;
   isDarkDatepickerTimeEnabled = true;
+
+  constructor(public _dateAdapter: DtDateAdapter<any>) {}
 }

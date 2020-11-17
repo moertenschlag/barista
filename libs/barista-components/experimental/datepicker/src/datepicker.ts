@@ -65,9 +65,9 @@ import { DtTheme } from '@dynatrace/barista-components/theming';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DtCalendar } from './calendar';
+import { getValidDateOrNull } from './datepicker-utils/util';
 import { DtTimeChangeEvent } from './timeinput';
 import { DtTimepicker } from './timepicker';
-import { getValidDateOrNull } from './datepicker-utils/util';
 
 /**
  * This position config ensures that the top "start" corner of the overlay
@@ -211,12 +211,15 @@ export class DtDatePicker<D>
   /** Object used to control when error messages are shown. */
   @Input() errorStateMatcher: ErrorStateMatcher;
 
-  /** Classes to be passed to the select panel. Supports the same syntax as `ngClass`. */
+  /** Classes to be passed to the datepicker panel. Supports the same syntax as `ngClass`. */
   // tslint:disable-next-line:no-any
   @Input() panelClass: string | string[] | Set<string> | { [key: string]: any };
 
   /** Property that enables the timepicker, so that a time can be entered as well. */
   @Input() isTimeEnabled: boolean;
+
+  /** Property decides whether or not the today button should be shown. */
+  @Input() isTodayButtonShown = true;
 
   /** Whether or not the overlay panel is open. */
   get panelOpen(): boolean {
@@ -259,7 +262,7 @@ export class DtDatePicker<D>
   /** @internal `View -> model callback called when value changes` */
   _onChange: (value: Date) => void = () => {};
 
-  /** @internal `View -> model callback called when select has been touched` */
+  /** @internal `View -> model callback called when datepicker has been touched` */
   _onTouched = () => {};
 
   /**
@@ -306,6 +309,7 @@ export class DtDatePicker<D>
   }
 
   ngOnDestroy(): void {
+    this.stateChanges.complete();
     this._destroy$.next();
     this._destroy$.complete();
   }
@@ -341,7 +345,7 @@ export class DtDatePicker<D>
   }
 
   /**
-   * Saves a callback function to be invoked when the select's value
+   * Saves a callback function to be invoked when the datepicker's value
    * changes from user input. Part of the ControlValueAccessor.
    */
   registerOnChange(fn: (value: Date) => void): void {
@@ -349,7 +353,7 @@ export class DtDatePicker<D>
   }
 
   /**
-   * Saves a callback function to be invoked when the select is blurred
+   * Saves a callback function to be invoked when the datepicker is blurred
    * by the user. Part of the ControlValueAccessor.
    */
   registerOnTouched(fn: () => {}): void {

@@ -1,5 +1,6 @@
 <button
   dt-button
+  cdkInitialFocus
   [attr.tabindex]="tabIndex"
   [attr.aria-disabled]="disabled"
   [attr.aria-label]="valueLabel"
@@ -29,6 +30,8 @@
 >
   <div
     #panel
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
     class="dt-datepicker-panel"
     [class.dt-datepicker-panel-done-animating]="_panelDoneAnimating"
     [ngClass]="panelClass"
@@ -45,6 +48,7 @@
       <dt-calendar
         [selected]="value"
         [startAt]="startAt"
+        [isTodayButtonShown]="isTodayButtonShown"
         (selectedChange)="_setSelectedValue($event)"
       ></dt-calendar>
       <dt-timepicker

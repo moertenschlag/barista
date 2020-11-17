@@ -116,7 +116,42 @@ describe('DtDatePicker', () => {
         expect(component.datePicker.startAt).toEqual(new Date(2020, 7, 31));
       }));
 
-      it('should set the panel classes on the datepicker panel if the panelClass is set and the datepicker was already opened', fakeAsync(() => {
+      it("should show the today button 'isTodayButtonShown' is set to true", fakeAsync(() => {
+        component.datePicker.open();
+        fixture.detectChanges();
+        tick();
+        const todayBtn = fixture.debugElement
+          .query(By.directive(DtCalendar))
+          .nativeElement.querySelector('.dt-today-button');
+        expect(todayBtn).not.toBeNull();
+      }));
+
+      it("should not show the today button if 'isTodayButtonShown' is set to false", fakeAsync(() => {
+        component.datePicker.isTodayButtonShown = false;
+        fixture.detectChanges();
+
+        component.datePicker.open();
+        fixture.detectChanges();
+        tick();
+
+        const todayBtn = fixture.debugElement
+          .query(By.directive(DtCalendar))
+          .nativeElement.querySelector('.dt-today-button');
+        expect(todayBtn).toBeNull();
+      }));
+
+      it('should set the panel class on the datepicker panel if a string is set as input and the datepicker was already opened', fakeAsync(() => {
+        component.datePicker.open();
+        fixture.detectChanges();
+        component.datePicker.panelClass = 'panel';
+        tick();
+        fixture.detectChanges();
+        expect(component.datePicker._panel.nativeElement.classList).toContain(
+          'panel',
+        );
+      }));
+
+      it('should set the panel classes on the datepicker panel if an array of strings is set as input and the datepicker was already opened', fakeAsync(() => {
         component.datePicker.open();
         fixture.detectChanges();
         component.datePicker.panelClass = ['panel', 'custom'];
@@ -174,6 +209,9 @@ describe('DtDatePicker', () => {
         fixture.detectChanges();
 
         expect(component.datePicker.value).toEqual(selectedCell.rawValue);
+        expect(component.datePicker._calendar.selected).toEqual(
+          selectedCell.rawValue,
+        );
 
         const formattedValueLabel = component._dateAdapter.format(
           selectedCell.rawValue,
@@ -184,6 +222,53 @@ describe('DtDatePicker', () => {
           },
         );
         expect(component.datePicker.valueLabel).toEqual(formattedValueLabel);
+      }));
+    });
+
+    describe('datepicker events', () => {
+      it('setting the id should trigger a stateChanges event', () => {
+        const stateChangesSpy = jest.fn();
+
+        const subscription = component.datePicker.stateChanges.subscribe(
+          stateChangesSpy,
+        );
+
+        component.datePicker.id = 'datepicker-test';
+        fixture.detectChanges();
+        expect(stateChangesSpy).toHaveBeenCalledTimes(1);
+        subscription.unsubscribe();
+      });
+
+      it('should complete the stateChanges stream on destroy', () => {
+        const spy = jest.fn();
+        const subscription = component.datePicker.stateChanges.subscribe(
+          undefined,
+          undefined,
+          spy,
+        );
+
+        fixture.destroy();
+        expect(spy).toHaveBeenCalled();
+        subscription.unsubscribe();
+      });
+
+      it('should correctly subscribe to the timechange event of the timepicker component when the hour and minute inputs are changed', fakeAsync(() => {
+        buttonTrigger.click();
+        fixture.detectChanges();
+        tick();
+
+        const hourEl =
+          component.datePicker._timePicker._timeInput._hourInput.nativeElement;
+        const changeSpy = jest.fn();
+        component.datePicker._timePicker.timeChange.subscribe(changeSpy);
+        fixture.detectChanges();
+        expect(changeSpy).not.toHaveBeenCalled();
+        component.datePicker._timePicker._timeInput.hour = 23;
+        component.datePicker._timePicker._timeInput.minute = 55;
+        fixture.detectChanges();
+        dispatchFakeEvent(hourEl, 'blur');
+        fixture.detectChanges();
+        expect(changeSpy).toHaveBeenCalledTimes(1);
       }));
     });
 
@@ -308,7 +393,6 @@ describe('DtDatePicker', () => {
           .query(By.directive(DtCalendar))
           .nativeElement.querySelector('.dt-calendar-body');
 
-        // expect(document.activeElement).toEqual(component.datePicker._calendar._calendarBody); // does not work
         expect(document.activeElement).toEqual(calendarBodyElement);
       }));
 
@@ -375,7 +459,7 @@ describe('DtDatePicker', () => {
         tick();
         flush();
 
-        expect(component.datePicker._isTimeLabelAvailable).toBeTruthy();
+        expect(component.datePicker._isTimeLabelAvailable()).toBeTruthy();
         expect(label.textContent.trim()).toContain('8/31/2020');
 
         const timeLabelElement = fixture.debugElement.nativeElement.querySelector(
@@ -389,6 +473,57 @@ describe('DtDatePicker', () => {
         );
         expect(component.datePicker.hour).toBe(23);
         expect(component.datePicker.minute).toBe(12);
+      }));
+
+      it('should hide the time label if the hour and minute are filled in, but then reset to empty by the user (e.g. the user deletes the hour and minute values)', fakeAsync(() => {
+        component.datePicker.open();
+        fixture.detectChanges();
+        tick();
+
+        component.datePicker._timePicker._timeInput.hour = 15;
+        component.datePicker._timePicker._timeInput.minute = 50;
+        fixture.detectChanges();
+        tick();
+
+        const hourEl =
+          component.datePicker._timePicker._timeInput._hourInput.nativeElement;
+        dispatchFakeEvent(hourEl, 'blur');
+        fixture.detectChanges();
+
+        expect(component.datePicker._isTimeLabelAvailable).toBeTruthy();
+
+        let timeLabelElement = fixture.debugElement.nativeElement.querySelector(
+          '.dt-time-label',
+        );
+        expect(timeLabelElement.textContent.replace(/\s+/g, '')).toContain(
+          '15:50',
+        );
+        expect(component.datePicker._timeLabel.replace(/\s+/g, '')).toContain(
+          '15:50',
+        );
+        expect(component.datePicker.hour).toBe(15);
+        expect(component.datePicker.minute).toBe(50);
+
+        component.datePicker._timePicker._timeInput.hour = null;
+        component.datePicker._timePicker._timeInput.minute = null;
+        fixture.detectChanges();
+        tick();
+
+        dispatchFakeEvent(hourEl, 'blur');
+        fixture.detectChanges();
+        tick();
+
+        expect(component.datePicker._isTimeLabelAvailable()).toBeFalsy();
+
+        timeLabelElement = fixture.debugElement.nativeElement.querySelector(
+          '.dt-time-label',
+        );
+        expect(timeLabelElement).toBeNull();
+        expect(
+          component.datePicker._timeLabel.replace(/\s+/g, ''),
+        ).not.toContain('15:50');
+        expect(component.datePicker.hour).toBe(null);
+        expect(component.datePicker.minute).toBe(null);
       }));
     });
   });
@@ -444,6 +579,7 @@ describe('DtDatePicker', () => {
       [startAt]="startAt"
       [disabled]="disabled"
       [isTimeEnabled]="isTimeEnabled"
+      [isTodayButtonShown]="isTodayButtonShown"
     ></dt-datepicker>
   `,
 })
@@ -451,6 +587,7 @@ class SimpleDatepickerTestApp {
   disabled = false;
   startAt = new Date(2020, 7, 31);
   isTimeEnabled = true;
+  isTodayButtonShown = true;
 
   @ViewChild(DtDatePicker) datePicker: DtDatePicker<any>;
 

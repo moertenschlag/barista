@@ -58,6 +58,7 @@ interface DtCalendarCell<D> {
     class: 'dt-calendar-body',
     tabIndex: '0',
     '(keyup)': '_onHostKeyup($event)',
+    '(keydown)': '_onHostKeydown($event)',
   },
   encapsulation: ViewEncapsulation.Emulated,
   preserveWhitespaces: false,
@@ -169,6 +170,21 @@ export class DtCalendarBody<D> {
     this._setActiveDateAndEmit(cell.rawValue);
     this._selectActiveDate();
     this._changeDetectorRef.markForCheck();
+  }
+
+  _onHostKeydown(event: KeyboardEvent): void {
+    const keyCode = _readKeyCode(event);
+    switch (keyCode) {
+      case UP_ARROW:
+      case DOWN_ARROW:
+      case LEFT_ARROW:
+      case RIGHT_ARROW:
+      case PAGE_UP:
+      case PAGE_DOWN:
+      case ENTER:
+      case SPACE:
+        event.preventDefault();
+    }
   }
 
   _onHostKeyup(event: KeyboardEvent): void {
@@ -301,7 +317,7 @@ export class DtCalendarBody<D> {
 
   private _setActiveDateAndEmit(date: D): void {
     if (this._dateAdapter.compareDate(date, this.activeDate)) {
-      this._activeDate = date;
+      this.activeDate = date;
       this.activeDateChange.emit(this.activeDate);
     }
   }

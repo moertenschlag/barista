@@ -46,7 +46,9 @@ export class DtCalendar<D> implements AfterContentInit {
   /** A date representing the period (month or year) to start the calendar in. */
   @Input()
   get startAt(): D | null {
-    return this._startAt;
+    return this._startAt
+      ? this._dateAdapter.clampDate(this._startAt, this.minDate, this.maxDate)
+      : null;
   }
   set startAt(value: D | null) {
     this._startAt = getValidDateOrNull(this._dateAdapter, value);
@@ -70,6 +72,7 @@ export class DtCalendar<D> implements AfterContentInit {
   }
   set minDate(value: D | null) {
     this._minDate = getValidDateOrNull(this._dateAdapter, value);
+    this._tryUpdateActiveDate();
   }
   private _minDate: D | null = null;
 
@@ -80,11 +83,16 @@ export class DtCalendar<D> implements AfterContentInit {
   }
   set maxDate(value: D | null) {
     this._maxDate = getValidDateOrNull(this._dateAdapter, value);
+    this._tryUpdateActiveDate();
   }
   private _maxDate: D | null = null;
 
+  /** Property that decides whether or not the today button should be shown. */
+  @Input() isTodayButtonShown = true;
+
   /** Emits when the currently selected date changes. */
-  @Output() readonly selectedChange = new EventEmitter<D>();
+  @Output()
+  readonly selectedChange = new EventEmitter<D>();
 
   get activeDate(): D {
     return this._activeDate;
@@ -95,7 +103,7 @@ export class DtCalendar<D> implements AfterContentInit {
       this.minDate,
       this.maxDate,
     );
-    this._label = this._dateAdapter.format(value, {
+    this._label = this._dateAdapter.format(this._activeDate, {
       year: 'numeric',
       month: 'short',
     });
@@ -103,9 +111,12 @@ export class DtCalendar<D> implements AfterContentInit {
   }
   private _activeDate: D;
 
+  /**
+   * @internal Label for displaying the current month and year on the calendar header.
+   */
   _label = '';
 
-  /** Unique id used for the aria-label. */
+  /** @internal  Unique id used for the aria-label. */
   _labelid = `dt-calendar-label-${uniqueId++}`;
 
   @ViewChild(DtCalendarBody) _calendarBody: DtCalendarBody<D>;
@@ -119,12 +130,18 @@ export class DtCalendar<D> implements AfterContentInit {
     this.activeDate = this.startAt || this._dateAdapter.today();
   }
 
+  /**
+   * @internal Focus on the calendar body.
+   */
   focus(): void {
     if (this._calendarBody) {
       this._calendarBody.focus();
     }
   }
 
+  /**
+   * @internal Add specified number of months to the calendar.
+   */
   _addMonths(months: number): void {
     this.activeDate = this._dateAdapter.addCalendarMonths(
       this.activeDate,
@@ -133,14 +150,31 @@ export class DtCalendar<D> implements AfterContentInit {
     this._changeDetectorRef.markForCheck();
   }
 
+  /**
+   * @internal Emit change event when the selected date changes.
+   */
   _selectedValueChanged(value: D): void {
-    this.selectedChange.emit(value);
+    this.selectedChange.emit(
+      this._dateAdapter.clampDate(value, this.minDate, this.maxDate),
+    );
   }
 
+  /**
+   * @internal Set today's date when the 'Today' button is clicked
+   */
   _setTodayDate(): void {
     this.selected = this._dateAdapter.today();
     this.activeDate = this.selected;
     this._selectedValueChanged(this.selected);
     this._changeDetectorRef.markForCheck();
+  }
+
+  /**
+   * @internal Try to update the active date if it's not undefined. This is necessary in case the min/max date constraints change.
+   */
+  _tryUpdateActiveDate(): void {
+    if (this._activeDate) {
+      this.activeDate = this._activeDate;
+    }
   }
 }

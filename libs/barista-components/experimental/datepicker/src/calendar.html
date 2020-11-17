@@ -54,4 +54,12 @@
   [aria-labelledby]="_labelid"
 ></dt-calendar-body>
 
-<button dt-button variant="secondary" (click)="_setTodayDate()">Today</button>
+<button
+  dt-button
+  class="dt-today-button"
+  *ngIf="isTodayButtonShown"
+  variant="secondary"
+  (click)="_setTodayDate()"
+>
+  Today
+</button>
