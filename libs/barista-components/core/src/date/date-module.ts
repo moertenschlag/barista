@@ -15,10 +15,6 @@
  */
 
 import { NgModule } from '@angular/core';
-import { DtDateAdapter } from './date-adapter';
-import { DtNativeDateAdapter } from './native-date-adapter';
 
-@NgModule({
-  providers: [{ provide: DtDateAdapter, useClass: DtNativeDateAdapter }],
-})
+@NgModule({})
 export class DtNativeDateModule {}
