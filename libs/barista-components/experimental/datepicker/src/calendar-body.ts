@@ -132,19 +132,19 @@ export class DtCalendarBody<D> {
   /** Emits when any date is activated. */
   @Output() readonly activeDateChange = new EventEmitter<D>();
 
-  /** The names of the weekdays. */
+  /** @internal The names of the weekdays. */
   _weekdays: { long: string; short: string }[];
 
-  /** Grid of calendar cells representing the dates of the month. */
+  /** @internal Grid of calendar cells representing the dates of the month. */
   _weeks: DtCalendarCell<D>[][];
 
-  /** The number of blank cells to put at the beginning for the first row. */
+  /** @internal The number of blank cells to put at the beginning for the first row. */
   _firstRowOffset: number;
 
-  /** @internal Unique id used for the aria-label. */
+  /** @internal Unique id used for the calendar body table's aria-describedby and ariaLabelledby if ariaLabelledby is not provided. */
   _labelid = `dt-calendar-body-label-${uniqueId++}`;
 
-  /** @internal Label used for aria-describedby if ariaLabelledby is not provided. */
+  /** @internal Label used for the calendar body table aria-label and description. */
   _label = '';
 
   constructor(
@@ -265,6 +265,7 @@ export class DtCalendarBody<D> {
     this._changeDetectorRef.markForCheck();
   }
 
+  /** @internal Initialization of the weeks and wekdays */
   private _init(): void {
     this._initWeekdays();
     this._initWeeks();
@@ -272,6 +273,7 @@ export class DtCalendarBody<D> {
     this._changeDetectorRef.markForCheck();
   }
 
+  /** @internal Initialization of weekdays used for rendering. */
   private _initWeekdays(): void {
     const firstDayOfWeek = this._dateAdapter.getFirstDayOfWeek();
     const shortWeekdays = this._dateAdapter.getDayOfWeekNames('short');
@@ -286,6 +288,7 @@ export class DtCalendarBody<D> {
       .concat(weekdays.slice(0, firstDayOfWeek));
   }
 
+  /** @internal Initialization of weeks used for rendering. */
   private _initWeeks(): void {
     const daysInMonth = this._dateAdapter.getNumDaysInMonth(this.activeDate);
     const dateNames = this._dateAdapter.getDateNames();
@@ -330,12 +333,14 @@ export class DtCalendarBody<D> {
         : 0;
   }
 
+  /** @internal Emits selected changes. */
   private _selectActiveDate(): void {
     if (!this.dateFilter || this.dateFilter(this._activeDate)) {
       this.selectedChange.emit(this._activeDate);
     }
   }
 
+  /** @internal Selectes he active date and emits it */
   private _setActiveDateAndEmit(date: D): void {
     if (this._dateAdapter.compareDate(date, this.activeDate)) {
       this.activeDate = date;
