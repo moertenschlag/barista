@@ -34,6 +34,8 @@ export class DatepickerDemo {
   isDatepickerTimeEnabled = true;
   isDarkDatepickerTimeEnabled = true;
   isTodayButtonShown = true;
+  isDatepickerTodayButtonShown = true;
+  isDarkDatepickerTodayButtonShown = true;
 
   @ViewChild('datepickerMinDate') datepickerMinDate: DtDatePicker<any>;
 

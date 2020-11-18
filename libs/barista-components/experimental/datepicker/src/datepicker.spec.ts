@@ -226,32 +226,6 @@ describe('DtDatePicker', () => {
     });
 
     describe('datepicker events', () => {
-      it('setting the id should trigger a stateChanges event', () => {
-        const stateChangesSpy = jest.fn();
-
-        const subscription = component.datePicker.stateChanges.subscribe(
-          stateChangesSpy,
-        );
-
-        component.datePicker.id = 'datepicker-test';
-        fixture.detectChanges();
-        expect(stateChangesSpy).toHaveBeenCalledTimes(1);
-        subscription.unsubscribe();
-      });
-
-      it('should complete the stateChanges stream on destroy', () => {
-        const spy = jest.fn();
-        const subscription = component.datePicker.stateChanges.subscribe(
-          undefined,
-          undefined,
-          spy,
-        );
-
-        fixture.destroy();
-        expect(spy).toHaveBeenCalled();
-        subscription.unsubscribe();
-      });
-
       it('should correctly subscribe to the timechange event of the timepicker component when the hour and minute inputs are changed', fakeAsync(() => {
         buttonTrigger.click();
         fixture.detectChanges();

@@ -59,10 +59,8 @@ import {
   DtUiTestConfiguration,
   DT_OVERLAY_THEMING_CONFIG,
   DT_UI_TEST_CONFIG,
-  ErrorStateMatcher,
   HasTabIndex,
   mixinDisabled,
-  mixinErrorState,
   mixinTabIndex,
 } from '@dynatrace/barista-components/core';
 import { DtTheme } from '@dynatrace/barista-components/theming';
@@ -113,15 +111,12 @@ let uniqueId = 0;
 // Boilerplate for applying mixins to DtDatePicker.
 export class DtDatepickerBase {
   constructor(
-    public _defaultErrorStateMatcher: ErrorStateMatcher,
     public _parentForm: NgForm,
     public _parentFormGroup: FormGroupDirective,
     public ngControl: NgControl,
   ) {}
 }
-export const _DtDatepickerBase = mixinTabIndex(
-  mixinDisabled(mixinErrorState(DtDatepickerBase)),
-);
+export const _DtDatepickerBase = mixinTabIndex(mixinDisabled(DtDatepickerBase));
 
 @Component({
   selector: 'dt-datepicker',
@@ -129,9 +124,7 @@ export const _DtDatepickerBase = mixinTabIndex(
   styleUrls: ['datepicker.scss'],
   host: {
     class: 'dt-datepicker',
-    '[class.dt-datepicker-invalid]': 'errorState',
     '[attr.id]': 'id',
-    '[attr.aria-invalid]': 'errorState',
     '[attr.aria-disabled]': 'disabled.toString()',
   },
   inputs: ['disabled', 'tabIndex'],
@@ -184,7 +177,6 @@ export class DtDatePicker<D>
   }
   set id(value: string) {
     this._id = value || this._uid;
-    this.stateChanges.next();
   }
   private _id: string;
   private _uid = `dt-datepicker-${uniqueId++}`;
@@ -211,9 +203,6 @@ export class DtDatePicker<D>
     this._startAt = getValidDateOrNull(this._dateAdapter, value);
   }
   private _startAt: D | null;
-
-  /** Object used to control when error messages are shown. */
-  @Input() errorStateMatcher: ErrorStateMatcher;
 
   /** Classes to be passed to the datepicker panel. Supports the same syntax as `ngClass`. */
   // tslint:disable-next-line:no-any
@@ -295,7 +284,6 @@ export class DtDatePicker<D>
     private _dateAdapter: DtDateAdapter<D>,
     private readonly _changeDetectorRef: ChangeDetectorRef,
     private readonly _elementRef: ElementRef,
-    readonly defaultErrorStateMatcher: ErrorStateMatcher,
     @Optional() readonly parentForm: NgForm,
     @Optional() readonly parentFormGroup: FormGroupDirective,
     @Optional() @SkipSelf() private _theme: DtTheme,
@@ -308,7 +296,7 @@ export class DtDatePicker<D>
     @Inject(DT_UI_TEST_CONFIG)
     private readonly _config?: DtUiTestConfiguration,
   ) {
-    super(defaultErrorStateMatcher, parentForm, parentFormGroup, ngControl);
+    super(parentForm, parentFormGroup, ngControl);
 
     this.tabIndex = parseInt(tabIndex, 10) || 0;
 
@@ -317,7 +305,6 @@ export class DtDatePicker<D>
   }
 
   ngOnDestroy(): void {
-    this.stateChanges.complete();
     this._destroy$.next();
     this._destroy$.complete();
   }
@@ -373,7 +360,6 @@ export class DtDatePicker<D>
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
     this._changeDetectorRef.markForCheck();
-    this.stateChanges.next();
   }
 
   /** @internal Callback that is invoked when the overlay panel has been attached. */
