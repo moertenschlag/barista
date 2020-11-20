@@ -60,6 +60,7 @@ import {
 import { determineOverflowingItems } from './overflowing-items';
 import { ESCAPE, hasModifierKey, TAB } from '@angular/cdk/keycodes';
 import { ActiveDescendantKeyManager, FocusMonitor } from '@angular/cdk/a11y';
+import { findFirstFocusableItem } from './focusable-items';
 
 declare const window: any;
 
@@ -114,27 +115,37 @@ export class DtBreadcrumbs
 
   _transplantedItemsString = ``;
 
+  /** Observes the container size */
   private _containerSizeObserver: any;
 
   private _destroy$ = new Subject<void>();
 
+  /** Observable that triggers when the container size changes */
   private _containerContentRect$ = new Subject<DOMRect>();
 
+  /** Used to trigger focus handling when the overlay trigger is blurred */
   private _overlayTriggerKeydown$ = new Subject<KeyboardEvent>();
 
+  /** Reference of the overlay containing transplanted breadcrumb items */
   private _overlayRef: OverlayRef | null = null;
 
+  /** Map of portals holding each item that has been moved to the overlay */
   private _itemsPortalsMap = new Map<DtBreadcrumbsItem2, PortalOutlet>();
 
+  /** Map containing the initial width of each breadcrumb item */
   private _itemsWidthMap = new Map<DtBreadcrumbsItem2, number>();
 
+  /** Container holding transplanted breadcrumb items */
   private _collapsedContainer: HTMLDivElement | null = null;
 
+  /** @internal Whether breadcrumbs are hidden */
   get _hasHiddenItems(): boolean {
     return this._items.length > 0 && this._itemsPortalsMap.size > 0;
   }
 
-  @ViewChild('collapseTrigger', { static: false }) _trigger: ElementRef | null;
+  /** Reference of the trigger toggling the overlay */
+  @ViewChild('collapseTrigger', { static: false })
+  private _trigger: ElementRef | null;
 
   constructor(
     public elementRef: ElementRef,
@@ -358,7 +369,7 @@ export class DtBreadcrumbs
 
     this._overlayRef?.attach(new DomPortal(this._collapsedContainer));
     this._collapsedContainer?.setAttribute(`aria-expanded`, `true`);
-    const items = Array.from(this._items).filter((item) => item._isFocusable);
+    const items = this._items.toArray().filter((item) => item._isFocusable);
 
     const keyManager = new ActiveDescendantKeyManager(items)
       .withWrap()
@@ -425,7 +436,7 @@ export class DtBreadcrumbs
     });
   }
 
-  /** Nexts overlay trigger observable to trigger focus handling */
+  /** @internal Nexts overlay trigger observable to trigger focus handling */
   _handleOverlayTriggerKeydown($event: KeyboardEvent): void {
     this._overlayTriggerKeydown$.next($event);
   }
@@ -468,24 +479,20 @@ export class DtBreadcrumbs
   }
 
   /** Returns the last focusable item of the breadcrumbs in the overlay */
-  private _getLastTransplantedFocusableItem(): DtBreadcrumbsItem2 | null {
-    const focusableTransplantedItems = Array.from(
+  private _getLastTransplantedFocusableItem(): DtBreadcrumbsItem2 | undefined {
+    const transplantedItems = Array.from(
       this._itemsPortalsMap.keys(),
-    ).filter((item) => item._isFocusable);
-    return (
-      focusableTransplantedItems[focusableTransplantedItems.length - 1] || null
-    );
+    ).reverse();
+
+    return findFirstFocusableItem(transplantedItems);
   }
 
   /** Returns the first visible breadcrumb that is focusable */
-  private _getFirstVisibleFocusableItem(): DtBreadcrumbsItem2 | null {
-    const visibleItems = Array.from(this._items).slice(
-      this._itemsPortalsMap.size,
-    );
-    const focusableVisibleItems = visibleItems.filter(
-      (item) => item._isFocusable,
-    );
+  private _getFirstVisibleFocusableItem(): DtBreadcrumbsItem2 | undefined {
+    const visibleItems = this._items
+      .toArray()
+      .slice(this._itemsPortalsMap.size);
 
-    return focusableVisibleItems[0] || null;
+    return findFirstFocusableItem(visibleItems);
   }
 }

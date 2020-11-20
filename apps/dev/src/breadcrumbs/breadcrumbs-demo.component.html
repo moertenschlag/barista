@@ -11,7 +11,7 @@
     dt-breadcrumbs-item component dt-breadcrumbs-item component
     dt-breadcrumbs-item component
   </a>
-  <a dtBreadcrumbsItem href=""> Third view </a>
+  <a *ngIf="!hideBreadcrumbs" dtBreadcrumbsItem href=""> Third view </a>
   <a *ngIf="!hideBreadcrumbs" dtBreadcrumbsItem
     >dt-breadcrumbs-item component dt-breadcrumbs-item component
     dt-breadcrumbs-item component</a

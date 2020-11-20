@@ -41,11 +41,6 @@ export class DtBreadcrumbsItem2 implements Highlightable {
     private _interactivityChecker: InteractivityChecker,
   ) {}
 
-  _active: boolean = false;
-
-  /** @internal Apply styles for text ellipsis if true */
-  _ellipsis: boolean = false;
-
   get _isFocusable(): boolean {
     return this._interactivityChecker.isFocusable(
       this._elementRef.nativeElement,
@@ -88,13 +83,9 @@ export class DtBreadcrumbsItem2 implements Highlightable {
   _setEllipsis(value: boolean): void {
     const element: Element = this._elementRef.nativeElement;
     if (value) {
-      if (!element.classList.contains(BREADCRUMBS_ITEM_ELLIPSIS_CLASS)) {
-        element.classList.add(BREADCRUMBS_ITEM_ELLIPSIS_CLASS);
-      }
+      element.classList.add(BREADCRUMBS_ITEM_ELLIPSIS_CLASS);
     } else {
-      if (element.classList.contains(BREADCRUMBS_ITEM_ELLIPSIS_CLASS)) {
-        element.classList.remove(BREADCRUMBS_ITEM_ELLIPSIS_CLASS);
-      }
+      element.classList.remove(BREADCRUMBS_ITEM_ELLIPSIS_CLASS);
     }
   }
 
