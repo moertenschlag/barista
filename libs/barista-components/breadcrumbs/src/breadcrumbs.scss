@@ -28,7 +28,7 @@ $dt-breadcrumbs-panel-min-width: 112px !default;
     margin-top: 0;
     margin-left: #{-$arrow-width + $arrow-padding};
     padding: 0 #{$arrow-width + 8px};
-    color: #ffffff;
+    color: $white;
     white-space: nowrap;
     text-decoration: none;
     z-index: 1;
@@ -63,7 +63,7 @@ $dt-breadcrumbs-panel-min-width: 112px !default;
     width: $arrow-width * 2;
     height: $height;
     box-sizing: border-box;
-    border-color: #ffffff #ffffff #ffffff transparent;
+    border-color: $white $white $white transparent;
     border-style: solid;
     border-width: #{$height / 2} $arrow-width;
     z-index: -2;
@@ -91,7 +91,7 @@ $dt-breadcrumbs-panel-min-width: 112px !default;
 }
 
 ::ng-deep .dt-breadcrumbs-overlay {
-  background: #ffffff;
+  background: $white;
   box-sizing: border-box;
   border: 1px solid $disabledcolor;
   border-radius: 0 0 3px 3px;

@@ -16,6 +16,7 @@
 
 import { DtBreadcrumbsItem2 } from './breadcrumbs-item';
 
+/** @internal Returns the first focusable breadcrumb item of the given list */
 export function findFirstFocusableItem(
   items: DtBreadcrumbsItem2[],
 ): DtBreadcrumbsItem2 | undefined {

@@ -31,7 +31,6 @@ import {
   ChangeDetectorRef,
   ViewChild,
   NgZone,
-  OnInit,
 } from '@angular/core';
 import { Subject, merge, combineLatest } from 'rxjs';
 import {
@@ -59,7 +58,7 @@ import {
 } from '@angular/cdk/overlay';
 import { determineOverflowingItems } from './overflowing-items';
 import { ESCAPE, hasModifierKey, TAB } from '@angular/cdk/keycodes';
-import { ActiveDescendantKeyManager, FocusMonitor } from '@angular/cdk/a11y';
+import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
 import { findFirstFocusableItem } from './focusable-items';
 
 declare const window: any;
@@ -108,7 +107,7 @@ export const _DtBreadcrumbMixinBase = mixinColor<
 })
 export class DtBreadcrumbs
   extends _DtBreadcrumbMixinBase
-  implements OnInit, AfterContentInit, AfterViewInit, OnDestroy {
+  implements AfterContentInit, AfterViewInit, OnDestroy {
   @ContentChildren(DtBreadcrumbsItem2) private _items: QueryList<
     DtBreadcrumbsItem2
   >;
@@ -156,14 +155,9 @@ export class DtBreadcrumbs
     private _overlay: Overlay,
     private _changeDetectorRef: ChangeDetectorRef,
     private _zone: NgZone,
-    private _focusMonitor: FocusMonitor,
   ) {
     super(elementRef);
     this._createCollapsedContainer();
-  }
-
-  ngOnInit(): void {
-    this._focusMonitor.monitor(this._elementRef.nativeElement);
   }
 
   ngAfterViewInit(): void {
