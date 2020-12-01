@@ -320,6 +320,9 @@ export class DtFilterField<T = any>
     DtFilterFieldCurrentFilterChangeEvent<T>
   >();
 
+  /** Emits the interaction-state (whether the filter-field is being interacted with or not) */
+  @Output() readonly interactionStateChange = new EventEmitter<Boolean>();
+
   /**
    * List of tags that are the visual representation for selected nodes.
    * This can be used to disable certain tags or change their labeling.
@@ -338,6 +341,9 @@ export class DtFilterField<T = any>
     // when the consumer sets disabled, editable or deletable on the tag instances
     delay(0),
   );
+
+  /** Whether the filter-field is being interacted with */
+  interactionState: boolean;
 
   /** @internal Reference to the internal input element */
   @ViewChild('input', { static: true }) _inputEl: ElementRef;
@@ -445,6 +451,9 @@ export class DtFilterField<T = any>
   /** Whether the filter field or one of it's child elements is focused. */
   private _isFocused = false;
 
+  /** Subject sets _isFocused and emits based on whether the filter-field is true or the range or the autocomplete is open. */
+  private _isFocusedSubject = new Subject<boolean | null>();
+
   /** A subject that emits every time the input is reset */
   private _inputReset$ = new Subject<void>();
 
@@ -510,10 +519,38 @@ export class DtFilterField<T = any>
 
   ngOnInit(): void {
     // If a custom parser is set in the input, prioritize the input one over the
-    // privided or default one.
+    // provided or default one.
     if (this.customTagParser) {
       this.tagValuesParser = this.customTagParser;
     }
+
+    this._isFocusedSubject
+      .pipe(startWith(false), takeUntil(this._destroy$))
+      .subscribe((isFocused) => {
+        // Special case null means the focus is outside the filter-field context (incl. range and autocomplete)
+        if (isFocused === null) {
+          this.interactionStateChange.emit(false);
+          return;
+        } else {
+          this._isFocused = isFocused;
+        }
+        // Interaction state is active when the filter-field is focused
+        if (isFocused) {
+          this.interactionStateChange.emit(true);
+          return;
+        }
+        // If the range is open then we are still in the filter-field context so the interaction state is active
+        if (this._filterfieldRange.isOpen || this._autocomplete.isOpen) {
+          this.interactionStateChange.emit(true);
+        } else {
+          this.interactionStateChange.emit(false);
+        }
+      });
+
+    this._filterfieldRange.closed.subscribe(() => {
+      // might need to check if the input is focused again
+      this._isFocusedSubject.next(null);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -538,7 +575,7 @@ export class DtFilterField<T = any>
         ) {
           currentlyOpenFilterField._closeFilterPanels();
         }
-        this._isFocused = isDefined(origin);
+        this._isFocusedSubject.next(isDefined(origin));
         // Assign the currently open filter field when it is focused.
         if (this._isFocused) {
           currentlyOpenFilterField = this;
@@ -762,7 +799,7 @@ export class DtFilterField<T = any>
         }
         this._updateFilterByLabel();
         this._updateTagData();
-        this._isFocused = true;
+        this._isFocusedSubject.next(true);
         this._stateChanges.next();
         this._emitCurrentFilterChanges([], removed);
         this._changeDetectorRef.markForCheck();
@@ -913,7 +950,7 @@ export class DtFilterField<T = any>
       this._editModeStashedValue = null;
       this._updateFilterByLabel();
       this._updateTagData();
-      this._isFocused = false;
+      this._isFocusedSubject.next(false);
       this._writeInputValue('');
       this._switchToRootDef(false);
       this._stateChanges.next();
@@ -1016,7 +1053,7 @@ export class DtFilterField<T = any>
       unit: event.unit,
     });
     this._filterfieldRangeTrigger.closePanel(false);
-    this._isFocused = true;
+    this._isFocusedSubject.next(true);
     this._writeInputValue('');
     this._switchToRootDef(true);
 
